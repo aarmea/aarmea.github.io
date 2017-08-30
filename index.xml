@@ -6,10 +6,28 @@
     <description>Recent content on Albert Armea</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 01 Aug 2017 21:25:28 -0700</lastBuildDate>
+    <lastBuildDate>Wed, 30 Aug 2017 23:39:16 -0700</lastBuildDate>
     
 	<atom:link href="https://aarmea.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Asynchronously loading pages in a Hugo site</title>
+      <link>https://aarmea.github.io/post/async-load-hugo/</link>
+      <pubDate>Wed, 30 Aug 2017 23:39:16 -0700</pubDate>
+      
+      <guid>https://aarmea.github.io/post/async-load-hugo/</guid>
+      <description>&lt;p&gt;I wrote a Hugo &amp;ldquo;theme&amp;rdquo; that loads its pages asynchronously. Play with it
+&lt;a href=&#34;https://aarmea.github.io/mfw-singlepage/&#34;&gt;here&lt;/a&gt; or read the code
+&lt;a href=&#34;https://github.com/aarmea/mfw-singlepage/tree/e17c04d/&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;video autoplay loop muted class=&#34;playpause-with-visibility&#34;&gt;
+  &lt;source src=&#34;https://aarmea.github.io/post/async-load-hugo/main.webm&#34; type=&#34;video/webm&#34;&gt;
+  &lt;source src=&#34;https://aarmea.github.io/post/async-load-hugo/main.mp4&#34; type=&#34;video/mp4&#34;&gt;
+&lt;/video&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>Older posts</title>

@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Asynchronously loading pages in a Hugo site | Albert Armea</title>
+
+        <meta charset="utf-8">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <meta name="author" content="">
+        <meta property="og:title" content="Asynchronously loading pages in a Hugo site" />
+    <meta property="og:description" content="" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content="https://aarmea.github.io/post/async-load-hugo/" />
+    
+
+    <link href="" rel="alternate" type="application/rss+xml" title="Albert Armea" />
+    <link rel="shortcut icon" href="/favicon.png">
+
+    <link href="https://aarmea.github.io/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+    <link href="https://aarmea.github.io/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="https://aarmea.github.io/css/style.css">
+
+    <link href="http://gmpg.org/xfn/11" rel="profile">
+
+    <meta name="generator" content="Hugo 0.26" />
+</head>
+
+
+<body>
+<div id="container">
+    <header id="header">
+    <div id="header-outer" class="outer">
+        <div id="header-inner" class="inner">
+            <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+            <a id="logo" class="logo-text" href="https://aarmea.github.io/">Albert Armea</a>
+            <nav id="main-nav">
+                
+                <a class="main-nav-link" href="https://github.com/aarmea">GitHub</a>
+                
+            </nav>
+            <nav id="sub-nav">
+                <div id="search-form-wrap">
+                </div>
+            </nav>
+        </div>
+    </div>
+</header>
+    <section id="main" class="outer">
+        <article class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        <header class="article-header">
+            <h1 class="article-title" itemprop="name">Asynchronously loading pages in a Hugo site</h1>
+        </header>
+        
+        <div class="article-meta">
+            <a href="/post/async-load-hugo/" class="article-date">
+                <time datetime='2017-08-30T23:39:16.000-07:00' itemprop="datePublished">2017-08-30</time>
+            </a>
+            
+            
+            
+        </div>
+        <div class="article-entry" itemprop="articleBody">
+            <p>I wrote a Hugo &ldquo;theme&rdquo; that loads its pages asynchronously. Play with it
+<a href="https://aarmea.github.io/mfw-singlepage/">here</a> or read the code
+<a href="https://github.com/aarmea/mfw-singlepage/tree/e17c04d/">here</a>.</p>
+
+<video autoplay loop muted class="playpause-with-visibility">
+  <source src="/post/async-load-hugo/main.webm" type="video/webm">
+  <source src="/post/async-load-hugo/main.mp4" type="video/mp4">
+</video>
+
+<p></p>
+
+<h1 id="using-hugo-for-a-podcast-site">Using Hugo for a podcast site</h1>
+
+<p>A few weeks ago, one of my friends asked me to help with the website for a
+podcast he was starting. Two of our requirements were that it needed to be a
+static site, mostly to save on hosting costs, and that it must have seamless
+playback: its audio player shouldn&rsquo;t ever be interrupted by navigating through
+the site. The websites of podcast <a href="http://99percentinvisible.org/">99%
+Invisible</a> and audio hosting service
+<a href="https://soundcloud.com/">SoundCloud</a> both have excellent implementations of
+seamless playback.</p>
+
+<p>I eventually settled on the static site generator <a href="https://gohugo.io/">Hugo</a>
+because it <a href="https://gohugo.io/content-management/types/">natively supports post categories independently from content
+types</a>, which we need to post both
+podcast episodes and articles but allow them to appear together in category
+listings. <a href="https://github.com/cmPolis/Pagify">Pagify.js</a> seemed promising for
+seamless playback (and it even has a <a href="https://github.com/JCB-K/singlepage-jekyll">Jekyll
+plugin</a>), but because it only loads
+the actual content of a page via an AJAX call, that content will not be
+available to search engines or other users that disable JavaScript.</p>
+
+<p>My prototype implements seamless playback in Hugo from scratch. Once you play
+the podcast, click around in the site. This will not stop playback &ndash; internal
+links load asynchronously and external links load in a new tab. With JavaScript
+disabled, you will at least be able to read the text content of the site.</p>
+
+<h1 id="pardon-the-dust">Pardon the dust</h1>
+
+<p>The code here is the <em>absolute minimum</em> needed to implement this functionality,
+so I&rsquo;m intentionally ignoring some best practices: there&rsquo;s no CSS at all and the
+JavaScript is defined inline, among others.</p>
+
+<h1 id="writing-a-hugo-theme">Writing a Hugo theme</h1>
+
+<p><a href="https://gohugo.io/themes/creating/">Hugo&rsquo;s documentation on creating a theme</a>
+tells you to run <code>hugo new theme [name]</code>, which is supposed to generate a
+scaffold of your new theme. I needed a place to define a base container template
+that Hugo would wrap around the site&rsquo;s content. It turns out that <a href="https://gohugo.io/templates/base/">the correct
+file for this is
+<code>layouts/_default/baseof.html</code></a> but as of
+this post, <a href="https://github.com/gohugoio/hugo/issues/3576">Hugo does not create this file for
+you</a>.</p>
+
+<p>Inside this file, I wrote a minimal HTML page with a header, a footer, and room
+for content. Hugo will populate <code>{{ block &quot;main&quot; . }}</code> with the page&rsquo;s content
+when the site is generated, and our JavaScript will change <code>#mainContent</code> as the
+user clicks on links.</p>
+
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;{{ .Site.LanguageCode }}&quot;&gt;
+  &lt;head&gt;
+    {{ .Hugo.Generator }}
+    &lt;meta charset=&quot;utf-8&quot;&gt;
+    &lt;title&gt;{{ block &quot;title&quot; . }}{{ .Title }} | {{ .Site.Title }}{{ end }}&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;header&gt;
+      &lt;h1&gt;&lt;a href=&quot;{{ &quot;/&quot; | relURL }}&quot;&gt;{{ .Site.Title }}&lt;/a&gt;&lt;/h1&gt;
+    &lt;/header&gt;
+    &lt;main id=&quot;mainContent&quot;&gt;{{ block &quot;main&quot; . }}{{ end }}&lt;/main&gt;
+    &lt;footer&gt;
+      &lt;a href=&quot;https://github.com/aarmea/mfw-singlepage&quot;&gt;mfw-singlepage&lt;/a&gt;
+      theme for &lt;a href=&quot;https://gohugo.io&quot;&gt;Hugo&lt;/a&gt;
+    &lt;/footer&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>The <code>&lt;header&gt;</code> and <code>&lt;footer&gt;</code> should probably be split out into their own
+<a href="https://gohugo.io/templates/partials/">partial templates</a> so that you can
+cleanly add your own embedded media here. However, they should not vary per page
+because they are never reloaded to avoid interrupting media playback.</p>
+
+<p>While <code>baseof.html</code> defines the base template, the actual pages are defined
+elsewhere and work by defining <a href="https://gohugo.io/variables/">variables</a>, like
+the previously mentioned <code>{{ block &quot;main&quot; . }}</code>, that are substituted into the
+template. The homepage layout is at
+<a href="https://github.com/aarmea/mfw-singlepage/blob/e17c04dbc59b93b6dbb50b0cfa8660fb464d864d/layouts/index.html"><code>layouts/index.html</code></a>
+and the individual post layout is at
+<a href="https://github.com/aarmea/mfw-singlepage/tree/e17c04dbc59b93b6dbb50b0cfa8660fb464d864d/layouts/_default"><code>layouts/_default/single.html</code></a>.
+Default layouts can be overridden on a per-section basis in <code>layouts/[section]</code>.</p>
+
+<p>When writing the theme, I also referenced the source of the <a href="https://comfusion.github.io/after-dark/">After
+Dark</a> and
+<a href="https://github.com/yihui/hugo-xmin">hugo-xmin</a> themes as examples.</p>
+
+<h1 id="loading-pages-asynchronously">Loading pages asynchronously</h1>
+
+<p>Loading the site&rsquo;s pages is done in a few steps: override the link action,
+retrieve and display the content, and update the back stack and displayed URL.</p>
+
+<h2 id="override-the-link-click-action">Override the link click action</h2>
+
+<p>The easiest way to do this is to register a click handler on the <code>&lt;body&gt;</code> and do
+nothing if the click event was not on a link:</p>
+
+<pre><code>window.onload = function() {
+  // Make links load asynchronously
+  document.body.addEventListener(&quot;click&quot;, function(event) {
+    if (event.target.tagName !== &quot;A&quot;)
+      return;
+
+    // History API needed to make sure back and forward still work
+    if (history === null)
+      return;
+
+    event.preventDefault();
+
+    // External links should instead open in a new tab
+    var newUrl = event.target.href;
+    var domain = window.location.origin;
+    if (typeof domain !== &quot;string&quot; || newUrl.search(domain) !== 0) {
+      window.open(newUrl, &quot;_blank&quot;);
+    } else {
+      loadPage(newUrl);
+      history.pushState(null /*stateObj*/, &quot;&quot; /*title*/, newUrl);
+    }
+  });
+}
+</code></pre>
+
+<p>Setting up this behavior this way, as opposed to adding the click handler to
+every <code>&lt;a&gt;</code> individually, means that I won&rsquo;t have to register more handlers
+when loading a new page.</p>
+
+<p>It might be better to use the
+<a href="https://developer.mozilla.org/en-US/docs/Web/Events/DOMContentLoaded">DOMContentLoaded</a>
+event or <a href="https://learn.jquery.com/using-jquery-core/document-ready/"><code>$(document).ready</code> from
+jQuery</a> here because
+this functionality doesn&rsquo;t depend on images and other content loading, but
+<a href="http://mdn.beonex.com/en/DOM/window.onload.html"><code>window.onload</code> waits for those
+anyway</a>. Alternately, I could
+have just given the click handler a name and set it directly on the <code>&lt;body
+onclick=&quot;...&quot;&gt;</code>.</p>
+
+<h2 id="retrieve-and-display-the-new-content">Retrieve and display the new content</h2>
+
+<p><code>loadPage()</code> does the AJAX call needed to get the new content. Using a raw
+<a href="https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest"><code>XMLHttpRequest</code></a>
+isn&rsquo;t exactly a one-liner like <a href="https://api.jquery.com/jQuery.get/">jQuery&rsquo;s
+<code>get()</code></a>, but it&rsquo;s not too far off:</p>
+
+<pre><code>function loadPage(newUrl) {
+  var httpRequest = new XMLHttpRequest();
+  httpRequest.onreadystatechange = function() {
+    if (httpRequest.readyState !== XMLHttpRequest.DONE)
+      return;
+
+    var newDocument = httpRequest.responseXML;
+    if (newDocument === null)
+      return;
+
+    var newContent = httpRequest.responseXML.getElementById(&quot;mainContent&quot;);
+    if (newContent === null)
+      return;
+
+    document.title = newDocument.title;
+
+    var contentElement = document.getElementById(&quot;mainContent&quot;);
+    contentElement.replaceWith(newContent);
+  }
+
+  httpRequest.responseType = &quot;document&quot;;
+  httpRequest.open(&quot;GET&quot;, newUrl);
+  httpRequest.send();
+};
+</code></pre>
+
+<p><code>XMLHttpRequest</code> is capable of parsing the response as HTML. To do this, set its
+<code>responseType</code> to <code>&quot;document&quot;</code> before sending the request and wait for
+<code>readyState</code> to become <code>XMLHttpRequest.DONE</code>. Then <code>responseXML</code> will contain
+the root element of the response and methods like <code>getElementById</code> will work on
+it as expected.</p>
+
+<p>After getting the <code>#mainContent</code> element in both the visible
+document and the newly loaded one, switching them out is just a call to
+<code>replaceWith</code>.</p>
+
+<p>If Internet Explorer support is not a concern to you, you could consider using
+<a href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API">Fetch</a> instead of
+XMLHttpRequest.</p>
+
+<h2 id="update-the-back-stack">Update the back stack</h2>
+
+<p>At this point, the site works and you can freely browse without interrupting
+media playback, but the back and forward buttons don&rsquo;t do what you&rsquo;d expect them
+to. The <a href="https://developer.mozilla.org/en-US/docs/Web/API/History_API">History
+API</a> allows
+JavaScript to modify the back stack to enable the back and forward buttons to
+work in a single page site.</p>
+
+<p>First, check if the history API is available. I did this check in the click
+handler before overriding its behavior:</p>
+
+<pre><code>// History API needed to make sure back and forward still work
+if (history === null)
+  return;
+</code></pre>
+
+<p>Further down, the click handler also calls <code>pushState</code> after displaying the new
+page to add it to the history and change the shown URL:</p>
+
+<pre><code>history.pushState(null /*stateObj*/, &quot;&quot; /*title*/, newUrl);
+</code></pre>
+
+<p>Finally, the <code>onpopstate</code> handler is called when the back button is clicked.
+When this happens, the page needs to reload the content from that URL.</p>
+
+<pre><code>window.onpopstate = function(event) {
+  loadPage(window.location);
+}
+</code></pre>
+
+<p>I could probably save bandwidth that will be wasted when the same page is loaded
+more than once by caching the content.</p>
+
+<h1 id="saying-no-to-jquery">Saying no to jQuery</h1>
+
+<p>I originally avoided jQuery for this prototype as a learning exercise, but in
+hindsight using it would not have helped much.</p>
+
+<p>In my case, jQuery could have helped by providing a better place to register the
+click handler, simplifying the AJAX call, and slightly shortening the call to
+locate the target element. Working around these isn&rsquo;t that annoying and isn&rsquo;t
+worth the 32 KB of bandwidth it takes to load jQuery.</p>
+
+<p>Maybe your new site doesn&rsquo;t need jQuery either. See <a href="http://youmightnotneedjquery.com/">You Might Not Need
+jQuery</a> and <a href="https://blog.garstasio.com/you-dont-need-jquery/why-not/">You Don&rsquo;t Need
+jQuery</a> for more.</p>
+        </div>
+
+        
+        
+        <div class="article-toc" >
+            <h3>Contents</h3>
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#using-hugo-for-a-podcast-site">Using Hugo for a podcast site</a></li>
+<li><a href="#pardon-the-dust">Pardon the dust</a></li>
+<li><a href="#writing-a-hugo-theme">Writing a Hugo theme</a></li>
+<li><a href="#loading-pages-asynchronously">Loading pages asynchronously</a>
+<ul>
+<li><a href="#override-the-link-click-action">Override the link click action</a></li>
+<li><a href="#retrieve-and-display-the-new-content">Retrieve and display the new content</a></li>
+<li><a href="#update-the-back-stack">Update the back stack</a></li>
+</ul></li>
+<li><a href="#saying-no-to-jquery">Saying no to jQuery</a></li>
+</ul>
+</nav>
+        </div>
+        
+        
+
+        
+
+
+        
+    </div>
+    <nav id="article-nav">
+    
+    
+    <a href="/post/older-posts/" id="article-nav-older" class="article-nav-link-wrap">
+        <div class="article-nav-title">Older posts&nbsp;<span>&gt;</span></div>
+    </a>
+    
+</nav>
+</article>
+
+        
+    </section>
+    <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            &copy; 2017 Albert Armea&nbsp;
+            Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> with theme <a href="https://github.com/carsonip/hugo-theme-minos">Minos</a>
+        </div>
+    </div>
+    
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/tomorrow-night.min.css" integrity="sha256-2wL88NKUqvJi/ExflDzkzUumjUM73mcK2gBvBBeLvTk=" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js" integrity="sha256-KbfTjB0WZ8vvXngdpJGY3Yp3xKk+tttbqClO11anCIU=" crossorigin="anonymous"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    
+    <script>
+        document.getElementById('main-nav-toggle').addEventListener('click', function () {
+            var header = document.getElementById('header');
+            if (header.classList.contains('mobile-on')) {
+                header.classList.remove('mobile-on');
+            } else {
+                header.classList.add('mobile-on');
+            }
+        });
+
+        
+        
+        (function() {
+            var tolerance = 40; 
+
+            function playPauseVideos() {
+                var elementsToAutoplay = document.getElementsByClassName('playpause-with-visibility');
+                var scrollTop = window.pageYOffset + tolerance;
+                var scrollBottom = window.pageYOffset + window.innerHeight - tolerance;
+
+                for (var i = 0; i < elementsToAutoplay.length; ++i) {
+                    if (elementsToAutoplay[i].tagName !== 'VIDEO')
+                        continue;
+
+                    var video = elementsToAutoplay[i];
+
+                    
+                    if (video.loop) {
+                        video.controls = false;
+                        video.muted = true;
+                    }
+
+                    video.autoplay = false;
+
+                    var videoTop = video.offsetTop;
+                    var videoBottom = video.offsetTop + video.offsetHeight;
+                    if (scrollTop < videoBottom && scrollBottom > videoTop) {
+                        video.play();
+                    } else {
+                        video.pause();
+                    }
+                }
+            }
+
+            window.addEventListener('load', playPauseVideos);
+            window.addEventListener('scroll', playPauseVideos);
+            window.addEventListener('resize', playPauseVideos);
+        })();
+    </script>
+</footer>
+
+</div>
+</body>
+</html>
