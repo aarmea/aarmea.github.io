@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Calculating a depth map from a stereo camera with OpenCV | Albert Armea</title>
+
+        <meta charset="utf-8">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <meta name="author" content="">
+        <meta property="og:title" content="Calculating a depth map from a stereo camera with OpenCV" />
+    <meta property="og:description" content="" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content="https://aarmea.github.io/post/opencv-stereo-camera/" />
+    
+
+    <link href="" rel="alternate" type="application/rss+xml" title="Albert Armea" />
+    <link rel="shortcut icon" href="/favicon.png">
+
+    <link href="https://aarmea.github.io/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+    <link href="https://aarmea.github.io/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="https://aarmea.github.io/css/style.css">
+
+    <link href="http://gmpg.org/xfn/11" rel="profile">
+
+    <meta name="generator" content="Hugo 0.27.1" />
+</head>
+
+
+<body>
+<div id="container">
+    <header id="header">
+    <div id="header-outer" class="outer">
+        <div id="header-inner" class="inner">
+            <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+            <a id="logo" class="logo-text" href="https://aarmea.github.io/">Albert Armea</a>
+            <nav id="main-nav">
+                
+                <a class="main-nav-link" href="/page/about">About</a>
+                
+                <a class="main-nav-link" href="https://github.com/aarmea">GitHub</a>
+                
+            </nav>
+            <nav id="sub-nav">
+                <div id="search-form-wrap">
+                </div>
+            </nav>
+        </div>
+    </div>
+</header>
+    <section id="main" class="outer">
+        <article class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        <header class="article-header">
+            <h1 class="article-title" itemprop="name">Calculating a depth map from a stereo camera with OpenCV</h1>
+        </header>
+        
+        <div class="article-meta">
+            
+            <a href="/post/opencv-stereo-camera/" class="article-date">
+                <time datetime='2017-10-01T20:49:33.000-07:00' itemprop="datePublished">2017-10-01</time>
+            </a>
+            
+            
+            
+            
+        </div>
+        <div class="article-entry" itemprop="articleBody">
+            <p><img src="/post/opencv-stereo-camera/depth-final.jpg" alt="Potted plants and the corresponding depth map" /></p>
+
+<p>I found and ordered <a href="https://www.amazon.com/ELP-Megapixel-Camera-Module-Biometric/dp/B00VG32EC2//ref=as_li_ss_tl?ie=UTF8&amp;linkCode=ll1&amp;tag=albertarmeabl-20&amp;linkId=bc5b4947de2850d5a0cec76d2c6a9760">ELP&rsquo;s stereo camera</a> to calculate depth
+maps with OpenCV and see what I could do with them. It turns out that just
+getting a decent depth map was much more involved than I expected. Read and
+download my code <a href="https://gist.github.com/aarmea/629e59ac7b640a60340145809b1c9013">here</a>.</p>
+
+<p></p>
+
+<p>I chose the ELP camera because it looked like a low-effort way to get working
+stereo camera hardware. You can probably get similar image quality for less by
+building one yourself &ndash; <a href="https://erget.wordpress.com/2014/02/01/calibrating-a-stereo-camera-with-opencv/">this person</a> used wood, glue, and
+duct tape to hold two cameras in place.</p>
+
+<p>When I bought it, the camera was poorly rated at 2.5 stars. Most of the
+critical reviews were about out-of-sync images and being unable to use both
+cameras at a good resolution simultaneously. I suspected these issues were the
+result of a lack of documentation and user error, so I risked the purchase
+anyway.</p>
+
+<h1 id="getting-synchronized-full-resolution-images">Getting synchronized, full-resolution images</h1>
+
+<h2 id="getting-an-image">Getting an image</h2>
+
+<p>After receiving the camera, my first step was to get images of any kind from it.
+First, I installed Python, OpenCV, and the OpenCV-Python bindings, then I
+slightly modified this <a href="https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_gui/py_video_display/py_video_display.html">OpenCV tutorial</a> so that it used
+two cameras:</p>
+
+<pre><code class="language-python">import cv2
+
+left = cv2.VideoCapture(0)
+right = cv2.VideoCapture(1)
+
+while(True):
+    if not (left.grab() and right.grab()):
+        print(&quot;No more frames&quot;)
+        break
+
+    _, leftFrame = left.retrieve()
+    _, rightFrame = right.retrieve()
+
+    cv2.imshow('left', leftFrame)
+    cv2.imshow('right', rightFrame)
+    if cv2.waitKey(1) &amp; 0xFF == ord('q'):
+        break
+
+left.release()
+right.release()
+cv2.destroyAllWindows()
+</code></pre>
+
+<p>On my Linux machine, I didn&rsquo;t have to install any drivers &ndash; it just worked out
+of the box.</p>
+
+<p><img src="/post/opencv-stereo-camera/stereo-small.jpg" alt="Small stereo view of potted plants" /></p>
+
+<p>The example used <a href="http://docs.opencv.org/3.3.0/d8/dfe/classcv_1_1VideoCapture.html#a473055e77dd7faa4d26d686226b292c1">read()</a> to get a frame. read()&rsquo;s
+documentation claims that it &ldquo;grabs, decodes, and returns the next video frame&rdquo;.
+This means that if you call read() twice in a row, there will be a decode step
+between the two grabs which can introduce a significant delay between the left
+and right images. I reduced this delay by grabbing both images with explicit
+calls to <a href="http://docs.opencv.org/3.3.0/d8/dfe/classcv_1_1VideoCapture.html#ae38c2a053d39d6b20c9c649e08ff0146">grab()</a> before decoding them with
+<a href="http://docs.opencv.org/3.3.0/d8/dfe/classcv_1_1VideoCapture.html#a9ac7f4b1cdfe624663478568486e6712">retrieve()</a>.</p>
+
+<p>The ELP camera enumerates as two separate cameras, hence the separate <code>left</code> and
+<code>right</code> VideoCapture instances. For a proper stereo camera with a common clock,
+use one VideoCapture instance and pass in whether you want the 0th or 1st camera
+in retrieve(). You might need to change the values passed into VideoCapture to 1
+and 2 if camera 0 is your computer&rsquo;s built in webcam.</p>
+
+<h2 id="increasing-the-resolution">Increasing the resolution</h2>
+
+<p>By default, the ELP cameras output video at 640x480. I didn&rsquo;t think I would be
+able to get a good depth map from that resolution, so my next step was to try to
+increase it to their claimed maximum of 1280x720.</p>
+
+<p>If you&rsquo;re using different cameras, <code>v4l2-ctl</code> on Linux can list their supported
+resolutions:</p>
+
+<pre><code class="language-bash">$ sudo v4l2-ctl -d /dev/video0 --list-formats-ext
+ioctl: VIDIOC_ENUM_FMT
+	Index       : 0
+	Type        : Video Capture
+	Pixel Format: 'YUYV'
+	Name        : YUYV 4:2:2
+		Size: Discrete 1280x720
+			Interval: Discrete 0.100s (10.000 fps)
+			Interval: Discrete 0.200s (5.000 fps)
+                ...
+		Size: Discrete 640x480
+			Interval: Discrete 0.033s (30.000 fps)
+			Interval: Discrete 0.067s (15.000 fps)
+                ...
+
+	Index       : 1
+	Type        : Video Capture
+	Pixel Format: 'MJPG' (compressed)
+	Name        : Motion-JPEG
+		Size: Discrete 1280x720
+			Interval: Discrete 0.033s (30.000 fps)
+			Interval: Discrete 0.040s (25.000 fps)
+			Interval: Discrete 0.067s (15.000 fps)
+                ...
+</code></pre>
+
+<p>In OpenCV, camera resolution is available as the <a href="http://docs.opencv.org/3.3.0/d4/d15/group__videoio__flags__base.html#gaeb8dd9c89c10a5c63c139bf7c4f5704d">VideoCapture
+properties</a> <code>CAP_PROP_FRAME_WIDTH</code> and
+<code>CAP_PROP_FRAME_HEIGHT</code>. The VideoCapture class has
+<a href="http://docs.opencv.org/3.3.0/d8/dfe/classcv_1_1VideoCapture.html#aa6480e6972ef4c00d74814ec841a2939">get()</a> and <a href="http://docs.opencv.org/3.3.0/d8/dfe/classcv_1_1VideoCapture.html#a8c6d8c2d37505b5ca61ffd4bb54e9a7c">set()</a> methods to
+access these properties:</p>
+
+<pre><code class="language-python">CAMERA_WIDTH = 1280
+CAMERA_HEIGHT = 720
+
+left.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_WIDTH)
+left.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
+right.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_WIDTH)
+right.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
+</code></pre>
+
+<p>After these changes, I got the error <code>VIDIOC_STREAMON: No space left on device</code>.
+This error actually means that <a href="https://superuser.com/questions/431759/using-multiple-usb-webcams-in-linux#433237">the cameras need more bandwidth than the
+controller can provide</a>. I tried to decrease the
+bandwidth requirements by forcing the MJPG encoding after setting the
+resolution:</p>
+
+<pre><code class="language-python">left.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*&quot;MJPG&quot;))
+right.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*&quot;MJPG&quot;))
+</code></pre>
+
+<p>&hellip; but it didn&rsquo;t work. At the time, I was running Linux Mint 18.2. Even though
+that was the latest release, <a href="https://community.linuxmint.com/software/view/python-opencv">its OpenCV was stuck at 2.4.9.1</a>, and
+it seemed to have a bug where setting the encoding didn&rsquo;t have any effect. As of
+this post, <a href="https://github.com/opencv/opencv/releases/tag/2.4.9">OpenCV 2.4.9 is over three years old!</a></p>
+
+<p>This wasn&rsquo;t the first time I was frustrated with Debian derivatives&rsquo; out-of-date
+packages. When working on <a href="/post/async-load-hugo">my Hugo-generated website</a>, I
+could only get a recent Hugo by installing a flatpak. I couldn&rsquo;t even build Hugo
+from source because the available Go compiler was also too old.</p>
+
+<p>My &ldquo;fix&rdquo; for these was to <del>install Gentoo</del> switch to Arch Linux using
+<a href="https://antergos.com/">Antergos</a>&rsquo; simple graphical installer. Once I finished
+installing everything again, the MJPG encoding worked and I was able to get
+video from both cameras at 1280x720 simultaneously (which is large enough that
+both don&rsquo;t fit on my screen):</p>
+
+<p><img src="/post/opencv-stereo-camera/stereo-full.jpg" alt="Full-resolution stereo view of potted plants" /></p>
+
+<h1 id="calibrating-the-cameras">Calibrating the cameras</h1>
+
+<p>Stereo correspondence algorithms rely on undistorted and rectified source
+images. Specifically, straight lines in the real world need to be straight in
+the images, and the images need to be aligned with each other. Out of the box,
+the ELP camera has plenty of distortion which I fixed by calibrating it.</p>
+
+<h2 id="capturing-calibration-data">Capturing calibration data</h2>
+
+<p>Before calibrating, I needed to get some calibration data. I printed out a
+chessboard, taped it to a clipboard, and added this to the code above to save
+the frames for later use (full capture code <a href="https://gist.github.com/aarmea/629e59ac7b640a60340145809b1c9013#file-1-capture-py">here</a>):</p>
+
+<pre><code class="language-python"># Different directories for each camera
+LEFT_PATH = &quot;capture/left/{:06d}.jpg&quot;
+RIGHT_PATH = &quot;capture/right/{:06d}.jpg&quot;
+
+# Filenames are just an increasing number
+frameId = 0
+
+# Capture loop from earlier...
+while(True):
+    # Actually save the frames
+    cv2.imwrite(LEFT_PATH.format(frameId), leftFrame)
+    cv2.imwrite(RIGHT_PATH.format(frameId), rightFrame)
+    frameId += 1
+</code></pre>
+
+<p>The chessboard I used is available <a href="/post/opencv-stereo-camera/chessboard.html">here</a>. You might need to
+enable background colors while printing. After printing, take note of how many
+corners are visible.</p>
+
+<h2 id="calibrating-the-cameras-individually">Calibrating the cameras individually</h2>
+
+<p>OpenCV has a <a href="http://docs.opencv.org/3.0-beta/doc/py_tutorials/py_calib3d/py_calibration/py_calibration.html#calibration">pretty good tutorial</a> on calibrating a
+single camera. The gist of it is to extract the locations of the corners from
+these chessboard pictures with
+<a href="http://docs.opencv.org/3.3.0/d9/d0c/group__calib3d.html#ga93efa9b0aa890de240ca32b11253dd4a">findChessboardCorners()</a> and use the corners to
+calibrate the camera with <a href="http://docs.opencv.org/3.3.0/d9/d0c/group__calib3d.html#ga3207604e4b1a1758aa66acb6ed5aa65d">calibrateCamera()</a>.  To
+correct just a single camera, calculate an undistortion matrix from the
+calibration with <a href="http://docs.opencv.org/3.3.0/d9/d0c/group__calib3d.html#ga7a6c4e032c97f03ba747966e6ad862b1">getOptimalNewCameraMatrix()</a>
+and <a href="http://docs.opencv.org/3.3.0/da/d54/group__imgproc__transform.html#ga7dfb72c9cf9780a347fbe3d1c47e5d5a">initUndistortRectifyMap()</a>. Once you have
+the undistortion matrix, use it to fix your image with <a href="http://docs.opencv.org/3.3.0/da/d54/group__imgproc__transform.html#gab75ef31ce5cdfb5c44b6da5f3b908ea4">remap()</a>.</p>
+
+<p>The main difference between the single-camera calibration of <a href="https://gist.github.com/aarmea/629e59ac7b640a60340145809b1c9013#file-2-calibrate-py">my
+implementation</a> and the tutorial is that mine caches the
+chessboard corner locations. This was the slowest step for me, so caching saved
+me plenty of time while I experimented with the calibration parameters and
+figured out the other necessary stages.</p>
+
+<p>Before running my calibration script, make sure to update <code>CHESSBOARD_SIZE</code> to
+match the geometry of the corners in your chessboard.</p>
+
+<p>The first time I tried calling calibrateCamera(), I noticed it was taking
+forever. I ended up killing the process after it had been calibrating for about
+an hour. I noticed that other calibration tools were only using a few
+hand-picked images but I was trying to calibrate with around a thousand frames
+of chessboards, so my quick fix to this was to take a random sample of 64
+images:</p>
+
+<pre><code class="language-python">MAX_IMAGES = 64
+if (len(filenames) &gt; MAX_IMAGES):
+    print(&quot;Too many images to calibrate, using {0} randomly selected images&quot;
+            .format(MAX_IMAGES))
+    filenames = random.sample(filenames, MAX_IMAGES)
+</code></pre>
+
+<p>Then, calibrating succeeded but the supposedly &ldquo;undistorted&rdquo; result ended up
+more distoted than the original:</p>
+
+<p><img src="/post/opencv-stereo-camera/calibrated-poor.jpg" alt="Poor calibration results - the image wraps around itself" /></p>
+
+<p>An anonymous comment to <a href="https://www.amazon.com/review/R2F3Y8SY1ANJOI//ref=as_li_ss_tl?ie=UTF8&amp;linkCode=ll2&amp;tag=albertarmeabl-20&amp;linkId=a3534ff7cee9f430f6dbe3776547518b">this review</a> suggested
+that I should try cropping the image:</p>
+
+<blockquote>
+<p>I was able to calibrate with opencv, but because of the distortion of the
+camera lens, the calibration could not be applied to the entire image.</p>
+</blockquote>
+
+<p>OpenCV images in Python are just NumPy arrays, so I cropped the images to 4:3,
+or 960x720 in this case, by using <a href="https://docs.scipy.org/doc/numpy/reference/arrays.indexing.html#basic-slicing-and-indexing">array slicing</a>:</p>
+
+<pre><code class="language-python">CROP_WIDTH = 960
+def cropHorizontal(image):
+    return image[:,
+            int((CAMERA_WIDTH-CROP_WIDTH)/2):
+            int(CROP_WIDTH+(CAMERA_WIDTH-CROP_WIDTH)/2)]
+</code></pre>
+
+<p>Most of the chessboards in my existing calibration data were cut off after
+cropping. I ended up taking new chessboard images with the crop applied during
+capture so I could avoid bringing the chessboard out of frame. After
+recalibrating, I was able to get good results with straight lines:</p>
+
+<p><img src="/post/opencv-stereo-camera/calibrated-good.jpg" alt="Well-calibrated image of potted plants" /></p>
+
+<h2 id="calibrating-the-cameras-together-and-rectifying">Calibrating the cameras together and rectifying</h2>
+
+<p>The next step to correct a stereo pair is to determine the rotation and vertical
+offset between the two cameras using
+<a href="http://docs.opencv.org/3.3.0/d9/d0c/group__calib3d.html#ga246253dcc6de2e0376c599e7d692303a">stereoCalibrate()</a>:</p>
+
+<pre><code class="language-python">(_, _, _, _, _, rotationMatrix, translationVector, _, _) = cv2.stereoCalibrate(
+        objectPoints, leftImagePoints, rightImagePoints,
+        leftCameraMatrix, leftDistortionCoefficients,
+        rightCameraMatrix, rightDistortionCoefficients,
+        imageSize, None, None, None, None,
+        cv2.CALIB_FIX_INTRINSIC, TERMINATION_CRITERIA)
+</code></pre>
+
+<p>Finally, use <a href="http://docs.opencv.org/3.3.0/d9/d0c/group__calib3d.html#ga617b1685d4059c6040827800e72ad2b6">stereoRectify()</a> and
+<a href="http://docs.opencv.org/3.3.0/da/d54/group__imgproc__transform.html#ga7dfb72c9cf9780a347fbe3d1c47e5d5a">initUndistortRectifyMap()</a> to convert the
+rotation and vertical offset into remapping matrices that can be directly used
+to correct the stereo pair:</p>
+
+<pre><code class="language-python">(leftRectification, rightRectification, leftProjection, rightProjection,
+        dispartityToDepthMap, leftROI, rightROI) = cv2.stereoRectify(
+                leftCameraMatrix, leftDistortionCoefficients,
+                rightCameraMatrix, rightDistortionCoefficients,
+                imageSize, rotationMatrix, translationVector,
+                None, None, None, None, None,
+                cv2.CALIB_ZERO_DISPARITY, OPTIMIZE_ALPHA)
+
+leftMapX, leftMapY = cv2.initUndistortRectifyMap(
+        leftCameraMatrix, leftDistortionCoefficients, leftRectification,
+        leftProjection, imageSize, cv2.CV_32FC1)
+rightMapX, rightMapY = cv2.initUndistortRectifyMap(
+        rightCameraMatrix, rightDistortionCoefficients, rightRectification,
+        rightProjection, imageSize, cv2.CV_32FC1)
+</code></pre>
+
+<p>NumPy makes it easy to save the calibration for later use:</p>
+
+<pre><code class="language-python">np.savez_compressed(outputFile, imageSize=imageSize,
+        leftMapX=leftMapX, leftMapY=leftMapY, leftROI=leftROI,
+        rightMapX=rightMapX, rightMapY=rightMapY, rightROI=rightROI)
+</code></pre>
+
+<p>The calibration for my ELP camera is available <a href="/post/opencv-stereo-camera/calibration.npz">here</a>, but you
+may need to recalibrate anyway because of manufacturing irregularities that
+result in camera differences.</p>
+
+<h1 id="calculating-a-depth-map">Calculating a depth map</h1>
+
+<p>Now that the cameras are fully calibrated and rectified, they can be used to
+generate depth maps. First, load the calibration:</p>
+
+<pre><code class="language-python">calibration = np.load(sys.argv[1], allow_pickle=False)
+imageSize = tuple(calibration[&quot;imageSize&quot;])
+leftMapX = calibration[&quot;leftMapX&quot;]
+leftMapY = calibration[&quot;leftMapY&quot;]
+leftROI = tuple(calibration[&quot;leftROI&quot;])
+rightMapX = calibration[&quot;rightMapX&quot;]
+rightMapY = calibration[&quot;rightMapY&quot;]
+rightROI = tuple(calibration[&quot;rightROI&quot;])
+</code></pre>
+
+<p>Then, in a capture loop similar to my first example on this page, undistort the
+images using remap(), convert them to grayscale with
+<a href="http://docs.opencv.org/3.3.0/d7/d1b/group__imgproc__misc.html#ga397ae87e1288a81d2363b61574eb8cab">cvtColor()</a>, and compute the depth map with a
+<a href="http://docs.opencv.org/3.3.0/d9/dba/classcv_1_1StereoBM.html">StereoBM</a> object:</p>
+
+<pre><code class="language-python">stereoMatcher = cv2.StereoBM_create()
+
+fixedLeft = cv2.remap(leftFrame, leftMapX, leftMapY, REMAP_INTERPOLATION)
+fixedRight = cv2.remap(rightFrame, rightMapX, rightMapY, REMAP_INTERPOLATION)
+
+grayLeft = cv2.cvtColor(fixedLeft, cv2.COLOR_BGR2GRAY)
+grayRight = cv2.cvtColor(fixedRight, cv2.COLOR_BGR2GRAY)
+depth = stereoMatcher.compute(grayLeft, grayRight)
+</code></pre>
+
+<p>When previewing the depth map, you&rsquo;ll need to scale it down to a visible range
+before showing it:</p>
+
+<pre><code class="language-python">DEPTH_VISUALIZATION_SCALE = 2048
+cv2.imshow('depth', depth / DEPTH_VISUALIZATION_SCALE)
+</code></pre>
+
+<p><img src="/post/opencv-stereo-camera/depth-nooptions.jpg" alt="Potted plants and a noisy depth map" /></p>
+
+<p>This image was a bit noisy. StereoBM has some properties that adjust the stereo
+correlation search range and noise removal parameters, among others. I found
+that these work well enough for me:</p>
+
+<pre><code class="language-python">stereoMatcher.setMinDisparity(4)
+stereoMatcher.setNumDisparities(128)
+stereoMatcher.setBlockSize(21)
+stereoMatcher.setSpeckleRange(16)
+stereoMatcher.setSpeckleWindowSize(45)
+</code></pre>
+
+<p>You may need to tune these and modify other StereoBM properties I didn&rsquo;t mention
+for your setup. While tuning, I just edited the numbers I passed in, but
+<a href="https://erget.wordpress.com/2014/03/13/building-an-interactive-gui-with-opencv/">someone else built a GUI</a> to make it easier. With these properties
+set, I got much better results:</p>
+
+<p><img src="/post/opencv-stereo-camera/depth-final.jpg" alt="Potted plants and a better depth map" /></p>
+        </div>
+
+        
+        
+        <div class="article-toc" >
+            <h3>Contents</h3>
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#getting-synchronized-full-resolution-images">Getting synchronized, full-resolution images</a>
+<ul>
+<li><a href="#getting-an-image">Getting an image</a></li>
+<li><a href="#increasing-the-resolution">Increasing the resolution</a></li>
+</ul></li>
+<li><a href="#calibrating-the-cameras">Calibrating the cameras</a>
+<ul>
+<li><a href="#capturing-calibration-data">Capturing calibration data</a></li>
+<li><a href="#calibrating-the-cameras-individually">Calibrating the cameras individually</a></li>
+<li><a href="#calibrating-the-cameras-together-and-rectifying">Calibrating the cameras together and rectifying</a></li>
+</ul></li>
+<li><a href="#calculating-a-depth-map">Calculating a depth map</a></li>
+</ul>
+</nav>
+        </div>
+        
+        
+
+        
+
+
+        
+    </div>
+    
+        <nav id="article-nav">
+    
+    <a href="/post/async-load-hugo/" id="article-nav-newer" class="article-nav-link-wrap">
+        <div class="article-nav-title"><span>&lt;</span>&nbsp;
+            Asynchronously loading pages in a Hugo site
+        </div>
+    </a>
+    
+    
+</nav>
+
+    
+</article>
+
+        
+    </section>
+    <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            &copy; 2017 Albert Armea&nbsp;
+            Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> with theme <a href="https://github.com/carsonip/hugo-theme-minos">Minos</a>
+        </div>
+    </div>
+    
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/tomorrow-night.min.css" integrity="sha256-2wL88NKUqvJi/ExflDzkzUumjUM73mcK2gBvBBeLvTk=" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js" integrity="sha256-KbfTjB0WZ8vvXngdpJGY3Yp3xKk+tttbqClO11anCIU=" crossorigin="anonymous"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    
+    <script>
+        document.getElementById('main-nav-toggle').addEventListener('click', function () {
+            var header = document.getElementById('header');
+            if (header.classList.contains('mobile-on')) {
+                header.classList.remove('mobile-on');
+            } else {
+                header.classList.add('mobile-on');
+            }
+        });
+
+        
+        
+        (function() {
+            var tolerance = 40; 
+
+            function playPauseVideos() {
+                var elementsToAutoplay = document.getElementsByClassName('playpause-with-visibility');
+                var scrollTop = window.pageYOffset + tolerance;
+                var scrollBottom = window.pageYOffset + window.innerHeight - tolerance;
+
+                for (var i = 0; i < elementsToAutoplay.length; ++i) {
+                    if (elementsToAutoplay[i].tagName !== 'VIDEO')
+                        continue;
+
+                    var video = elementsToAutoplay[i];
+
+                    
+                    if (video.loop) {
+                        video.controls = false;
+                        video.muted = true;
+                    }
+
+                    video.autoplay = false;
+
+                    var videoTop = video.offsetTop;
+                    var videoBottom = video.offsetTop + video.offsetHeight;
+                    if (scrollTop < videoBottom && scrollBottom > videoTop) {
+                        video.play();
+                    } else {
+                        video.pause();
+                    }
+                }
+            }
+
+            window.addEventListener('load', playPauseVideos);
+            window.addEventListener('scroll', playPauseVideos);
+            window.addEventListener('resize', playPauseVideos);
+        })();
+    </script>
+</footer>
+
+</div>
+</body>
+</html>

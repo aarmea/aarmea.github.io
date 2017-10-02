@@ -6,10 +6,26 @@
     <description>Recent content on Albert Armea</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 30 Aug 2017 23:39:16 -0700</lastBuildDate>
+    <lastBuildDate>Sun, 01 Oct 2017 20:49:33 -0700</lastBuildDate>
     
 	<atom:link href="https://aarmea.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Calculating a depth map from a stereo camera with OpenCV</title>
+      <link>https://aarmea.github.io/post/opencv-stereo-camera/</link>
+      <pubDate>Sun, 01 Oct 2017 20:49:33 -0700</pubDate>
+      
+      <guid>https://aarmea.github.io/post/opencv-stereo-camera/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://aarmea.github.io/post/opencv-stereo-camera/depth-final.jpg&#34; alt=&#34;Potted plants and the corresponding depth map&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;I found and ordered &lt;a href=&#34;https://www.amazon.com/ELP-Megapixel-Camera-Module-Biometric/dp/B00VG32EC2//ref=as_li_ss_tl?ie=UTF8&amp;amp;linkCode=ll1&amp;amp;tag=albertarmeabl-20&amp;amp;linkId=bc5b4947de2850d5a0cec76d2c6a9760&#34;&gt;ELP&amp;rsquo;s stereo camera&lt;/a&gt; to calculate depth
+maps with OpenCV and see what I could do with them. It turns out that just
+getting a decent depth map was much more involved than I expected. Read and
+download my code &lt;a href=&#34;https://gist.github.com/aarmea/629e59ac7b640a60340145809b1c9013&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>Asynchronously loading pages in a Hugo site</title>
