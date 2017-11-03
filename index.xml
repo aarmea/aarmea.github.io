@@ -2,22 +2,22 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Albert Armea</title>
-    <link>https://aarmea.github.io/</link>
+    <link>https://albertarmea.com/</link>
     <description>Recent content on Albert Armea</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Sun, 01 Oct 2017 20:49:33 -0700</lastBuildDate>
     
-	<atom:link href="https://aarmea.github.io/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://albertarmea.com/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Calculating a depth map from a stereo camera with OpenCV</title>
-      <link>https://aarmea.github.io/post/opencv-stereo-camera/</link>
+      <link>https://albertarmea.com/post/opencv-stereo-camera/</link>
       <pubDate>Sun, 01 Oct 2017 20:49:33 -0700</pubDate>
       
-      <guid>https://aarmea.github.io/post/opencv-stereo-camera/</guid>
-      <description>&lt;p&gt;&lt;img src=&#34;https://aarmea.github.io/post/opencv-stereo-camera/depth-final.jpg&#34; alt=&#34;Potted plants and the corresponding depth map&#34; /&gt;&lt;/p&gt;
+      <guid>https://albertarmea.com/post/opencv-stereo-camera/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://albertarmea.com/post/opencv-stereo-camera/depth-final.jpg&#34; alt=&#34;Potted plants and the corresponding depth map&#34; /&gt;&lt;/p&gt;
 
 &lt;p&gt;I found and ordered &lt;a href=&#34;https://www.amazon.com/ELP-Megapixel-Camera-Module-Biometric/dp/B00VG32EC2//ref=as_li_ss_tl?ie=UTF8&amp;amp;linkCode=ll1&amp;amp;tag=albertarmeabl-20&amp;amp;linkId=bc5b4947de2850d5a0cec76d2c6a9760&#34;&gt;ELP&amp;rsquo;s stereo camera&lt;/a&gt; to calculate depth
 maps with OpenCV and see what I could do with them. It turns out that just
@@ -29,17 +29,17 @@ download my code &lt;a href=&#34;https://gist.github.com/aarmea/629e59ac7b640a60
     
     <item>
       <title>Asynchronously loading pages in a Hugo site</title>
-      <link>https://aarmea.github.io/post/async-load-hugo/</link>
+      <link>https://albertarmea.com/post/async-load-hugo/</link>
       <pubDate>Wed, 30 Aug 2017 23:39:16 -0700</pubDate>
       
-      <guid>https://aarmea.github.io/post/async-load-hugo/</guid>
+      <guid>https://albertarmea.com/post/async-load-hugo/</guid>
       <description>&lt;p&gt;I wrote a Hugo &amp;ldquo;theme&amp;rdquo; that loads its pages asynchronously. Play with it
 &lt;a href=&#34;https://aarmea.github.io/mfw-singlepage/&#34;&gt;here&lt;/a&gt; or read the code
 &lt;a href=&#34;https://github.com/aarmea/mfw-singlepage/tree/e17c04d/&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
 
 &lt;video autoplay loop muted class=&#34;playpause-with-visibility&#34;&gt;
-  &lt;source src=&#34;https://aarmea.github.io/post/async-load-hugo/main.webm&#34; type=&#34;video/webm&#34;&gt;
-  &lt;source src=&#34;https://aarmea.github.io/post/async-load-hugo/main.mp4&#34; type=&#34;video/mp4&#34;&gt;
+  &lt;source src=&#34;https://albertarmea.com/post/async-load-hugo/main.webm&#34; type=&#34;video/webm&#34;&gt;
+  &lt;source src=&#34;https://albertarmea.com/post/async-load-hugo/main.mp4&#34; type=&#34;video/mp4&#34;&gt;
 &lt;/video&gt;
 
 &lt;p&gt;&lt;/p&gt;</description>
@@ -47,10 +47,10 @@ download my code &lt;a href=&#34;https://gist.github.com/aarmea/629e59ac7b640a60
     
     <item>
       <title>Older posts</title>
-      <link>https://aarmea.github.io/post/older-posts/</link>
+      <link>https://albertarmea.com/post/older-posts/</link>
       <pubDate>Tue, 01 Aug 2017 21:25:28 -0700</pubDate>
       
-      <guid>https://aarmea.github.io/post/older-posts/</guid>
+      <guid>https://albertarmea.com/post/older-posts/</guid>
       <description>&lt;p&gt;My older posts are still available at &lt;a href=&#34;http://blog.albertarmea.com/&#34;&gt;http://blog.albertarmea.com/&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;&lt;/p&gt;</description>
@@ -58,10 +58,10 @@ download my code &lt;a href=&#34;https://gist.github.com/aarmea/629e59ac7b640a60
     
     <item>
       <title>About</title>
-      <link>https://aarmea.github.io/page/about/</link>
+      <link>https://albertarmea.com/page/about/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://aarmea.github.io/page/about/</guid>
+      <guid>https://albertarmea.com/page/about/</guid>
       <description>I make things &amp;ndash; usually software, but sometimes also hardware, videos, and music. On this site, I document the process of making these things and interesting (and occasionally unrelated) adventures that happen along the way.
 You can also find me on:
  GitHub YouTube Reddit  &amp;hellip; or you can send me an email.
