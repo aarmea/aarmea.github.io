@@ -129,7 +129,7 @@ for content. Hugo will populate <code>{{ block &quot;main&quot; . }}</code> with
 when the site is generated, and our JavaScript will change <code>#mainContent</code> as the
 user clicks on links.</p>
 
-<pre><code>&lt;!DOCTYPE html&gt;
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
 &lt;html lang=&quot;{{ .Site.LanguageCode }}&quot;&gt;
   &lt;head&gt;
     {{ .Hugo.Generator }}
@@ -177,7 +177,7 @@ retrieve and display the content, and update the back stack and displayed URL.</
 <p>The easiest way to do this is to register a click handler on the <code>&lt;body&gt;</code> and do
 nothing if the click event was not on a link:</p>
 
-<pre><code>window.onload = function() {
+<pre><code class="language-javascript">window.onload = function() {
   // Make links load asynchronously
   document.body.addEventListener(&quot;click&quot;, function(event) {
     if (event.target.tagName !== &quot;A&quot;)
@@ -223,7 +223,7 @@ onclick=&quot;...&quot;&gt;</code>.</p>
 isn&rsquo;t exactly a one-liner like <a href="https://api.jquery.com/jQuery.get/">jQuery&rsquo;s
 <code>get()</code></a>, but it&rsquo;s not too far off:</p>
 
-<pre><code>function loadPage(newUrl) {
+<pre><code class="language-javascript">function loadPage(newUrl) {
   var httpRequest = new XMLHttpRequest();
   httpRequest.onreadystatechange = function() {
     if (httpRequest.readyState !== XMLHttpRequest.DONE)
@@ -275,7 +275,7 @@ work in a single page site.</p>
 <p>First, check if the history API is available. I did this check in the click
 handler before overriding its behavior:</p>
 
-<pre><code>// History API needed to make sure back and forward still work
+<pre><code class="language-javascript">// History API needed to make sure back and forward still work
 if (history === null)
   return;
 </code></pre>
@@ -283,13 +283,13 @@ if (history === null)
 <p>Further down, the click handler also calls <code>pushState</code> after displaying the new
 page to add it to the history and change the shown URL:</p>
 
-<pre><code>history.pushState(null /*stateObj*/, &quot;&quot; /*title*/, newUrl);
+<pre><code class="language-javascript">history.pushState(null /*stateObj*/, &quot;&quot; /*title*/, newUrl);
 </code></pre>
 
 <p>Finally, the <code>onpopstate</code> handler is called when the back button is clicked.
 When this happens, the page needs to reload the content from that URL.</p>
 
-<pre><code>window.onpopstate = function(event) {
+<pre><code class="language-javascript">window.onpopstate = function(event) {
   loadPage(window.location);
 }
 </code></pre>
