@@ -6,10 +6,27 @@
     <description>Recent content on Albert Armea</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 01 Oct 2017 20:49:33 -0700</lastBuildDate>
+    <lastBuildDate>Wed, 17 Jan 2018 00:02:13 +0000</lastBuildDate>
     
 	<atom:link href="https://albertarmea.com/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Making animatronics useful with Alexa</title>
+      <link>https://albertarmea.com/post/alexa-tree/</link>
+      <pubDate>Wed, 17 Jan 2018 00:02:13 +0000</pubDate>
+      
+      <guid>https://albertarmea.com/post/alexa-tree/</guid>
+      <description>&lt;div class=&#34;video-container&#34;&gt;
+  &lt;iframe src=&#34;https://www.youtube.com/embed/Yi8ShLDlquk?showinfo=0&#34; frameborder=&#34;0&#34; allowfullscreen&gt;&lt;/iframe&gt;
+&lt;/div&gt;
+
+&lt;p&gt;I was looking for a white elephant gift, and the silliness of this animatronic
+Christmas tree was too hard to pass up. The humor wore off after the third time
+I heard it sing, so I decided to make it useful by adding Alexa.&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>Calculating a depth map from a stereo camera with OpenCV</title>
@@ -67,6 +84,15 @@ You can also find me on:
  GitHub Thingiverse YouTube Reddit Keybase LinkedIn  &amp;hellip; or you can send me an email.
 My resume can be found here.
 Site This site is generated with Hugo using a modified version of the Minos theme and hosted by GitHub Pages.</description>
+    </item>
+    
+    <item>
+      <title>Animatronic tree teardown</title>
+      <link>https://albertarmea.com/aside/alexa-tree-teardown/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://albertarmea.com/aside/alexa-tree-teardown/</guid>
+      <description>&lt;p&gt;&lt;/p&gt;</description>
     </item>
     
   </channel>

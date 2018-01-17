@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Making animatronics useful with Alexa | Albert Armea</title>
+
+        <meta charset="utf-8">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <meta name="author" content="">
+        <meta property="og:title" content="Making animatronics useful with Alexa" />
+    <meta property="og:description" content="" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content="https://albertarmea.com/post/alexa-tree/" />
+    
+
+    <link href="" rel="alternate" type="application/rss+xml" title="Albert Armea" />
+    <link rel="shortcut icon" href="/favicon.png">
+
+    <link href="https://albertarmea.com/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+    <link href="https://albertarmea.com/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="https://albertarmea.com/css/style.css">
+
+    <link href="http://gmpg.org/xfn/11" rel="profile">
+
+    <meta name="generator" content="Hugo 0.32.4" />
+</head>
+
+
+<body>
+<div id="container">
+    <header id="header">
+    <div id="header-outer" class="outer">
+        <div id="header-inner" class="inner">
+            <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+            <a id="logo" class="logo-text" href="https://albertarmea.com/">Albert Armea</a>
+            <nav id="main-nav">
+                
+                <a class="main-nav-link" href="/page/about">About</a>
+                
+                <a class="main-nav-link" href="https://github.com/aarmea">GitHub</a>
+                
+            </nav>
+            <nav id="sub-nav">
+                <div id="search-form-wrap">
+                </div>
+            </nav>
+        </div>
+    </div>
+</header>
+    <section id="main" class="outer">
+        <article class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        <header class="article-header">
+            <h1 class="article-title" itemprop="name">Making animatronics useful with Alexa</h1>
+        </header>
+        
+        <div class="article-meta">
+            
+            <a href="/post/alexa-tree/" class="article-date">
+                <time datetime='2018-01-17T00:02:13.000&#43;00:00' itemprop="datePublished">2018-01-17</time>
+            </a>
+            
+            
+            
+            
+        </div>
+        <div class="article-entry" itemprop="articleBody">
+            <div class="video-container">
+  <iframe src="https://www.youtube.com/embed/Yi8ShLDlquk?showinfo=0" frameborder="0" allowfullscreen></iframe>
+</div>
+
+<p>I was looking for a white elephant gift, and the silliness of this animatronic
+Christmas tree was too hard to pass up. The humor wore off after the third time
+I heard it sing, so I decided to make it useful by adding Alexa.</p>
+
+<p></p>
+
+<p>For context, the tree originally played a song, and motors in its mouth and body
+made it sing and dance to the music. This is all the tree was designed to do:</p>
+
+<!-- ffmpeg -ss 00:00:01 -i VID_20171214_131516_2.mp4 -s 1280x720 -vframes 1 -q:v 5 VID_20171214_131516_2-web.jpg -->
+
+<video controls poster="/post/alexa-tree/original.jpg">
+  <!-- ffmpeg -ss 00:00:01 -i VID_20171214_131516_2.mp4 -s 1280x720 -c:v libvpx-vp9 -crf 42 -b:v 0 VID_20171214_131516_2-web.webm -->
+  <source src="/post/alexa-tree/original.webm" type="video/webm">
+  <!-- ffmpeg -ss 00:00:01 -i VID_20171214_131516_2.mp4 -s 1280x720 -c:v libx264 -crf 26 -b:v 0 VID_20171214_131516_2-web.mp4 -->
+  <source src="/post/alexa-tree/original.mp4" type="video/mp4">
+</video>
+
+<p>The first step was to take the tree apart to see what components can be reused.
+Fortunately, this was relatively easy &ndash; aside from the short section of fabric
+I had to cut and two small blobs of hot glue used for strain relief, all of the
+components were held in place with screws.</p>
+
+<p><a href="/aside/alexa-tree-teardown">See here for a full teardown.</a></p>
+
+<h1 id="building-new-hardware">Building new hardware</h1>
+
+<p>Once I had the tree&rsquo;s electronics enclosure out, I could start picking parts and
+building hardware to replace its original circuits.</p>
+
+<!-- convert -strip -resize 1600 -interlace Plane -quality 70 IMG_20171214_135942.jpg IMG_20171214_135942-web.jpg -->
+
+<p><img src="/post/alexa-tree/assembly.jpg" alt="Tree's electronics assembly after removal" /></p>
+
+<h2 id="choosing-parts">Choosing parts</h2>
+
+<p>I had two main constraints for parts: they had to fit inside the enclosure for
+neatness, and I needed to be able to buy the parts in person to finish it on
+time for Christmas. While this meant that all of the Raspberry Pi HATs were out
+of the question, <a href="https://vetco.net/">Vetco Electronics</a> has an excellent
+selection of more generic parts near Seattle.</p>
+
+<p>Here&rsquo;s what I ended up using:</p>
+
+<ul>
+<li><a href="https://www.raspberrypi.org/products/raspberry-pi-zero-w/">Raspberry Pi Zero W</a><sup class="footnote-ref" id="fnref:pi-zero-buy"><a rel="footnote" href="#fn:pi-zero-buy">1</a></sup> for wakeword detection and to
+communicate with the <a href="https://developer.amazon.com/alexa-voice-service">Alexa Voice Service</a>. The enclosure is too small to
+fit a <a href="https://www.ifixit.com/Teardown/Amazon+Echo+Dot+Teardown/61304">gutted Echo Dot</a> or a full-sized Pi.</li>
+<li><a href="https://www.amazon.com/Sabrent-External-Adapter-Windows-AU-MMSA/dp/B00IRVQ0F8/ref=as_li_ss_tl?ie=UTF8&amp;qid=1515618548&amp;sr=8-3&amp;keywords=usb+headphone+adapter&amp;linkCode=ll1&amp;tag=albertarmeabl-20&amp;linkId=a1db2fa73cf4a9027069fca2e7c2906f">Sabrent USB audio adapter</a> for audio I/O because no Raspberry
+Pi has a built-in input. I had a few of these lying around. They&rsquo;re fairly
+compact and work well, so it seemed like a natural choice.</li>
+<li><a href="https://www.amazon.com/Rankie-3-Pack-Female-Converter-Adapter/dp/B00YOX4JU6/ref=as_li_ss_tl?ie=UTF8&amp;qid=1515726330&amp;sr=8-1&amp;keywords=usb+otg+adapter&amp;linkCode=ll1&amp;tag=albertarmeabl-20&amp;linkId=b38d9478786e964e346fd7679818ab4b">Micro-USB OTG adapter</a> to plug in the audio adapter since the Pi
+Zero only has micro-USB ports for compactness.</li>
+<li><a href="http://www.circuitbasics.com/build-a-great-sounding-audio-amplifier-with-bass-boost-from-the-lm386/">LM386-based amplifier circuit</a> to drive the existing speaker.
+While it doesn&rsquo;t provide the best audio quality, it&rsquo;s good enough for audible
+speech.</li>
+<li><a href="https://vetco.net/products/button-microphone">Electret microphone</a><sup class="footnote-ref" id="fnref:vetco-microphone"><a rel="footnote" href="#fn:vetco-microphone">2</a></sup> to listen for commands.
+The datasheet suggests a driver circuit to provide a bias voltage for power,
+but I ended up not needing it because the audio adapter includes one.</li>
+<li>2x <a href="https://vetco.net/products/ba6286-single-h-bridge-motor-driver-15v-1a">BA6286 motor controller</a> to drive the mouth and dancing
+motors, since the Pi&rsquo;s GPIO pins aren&rsquo;t rated for this kind of current draw.</li>
+<li>USB power supply rated for at least 2A, like <a href="https://www.amazon.com/CanaKit-Raspberry-Supply-Adapter-Charger/dp/B00MARDJZ4/ref=as_li_ss_tl?ie=UTF8&amp;qid=1515728162&amp;sr=8-1-spons&amp;keywords=raspberry+pi+power+supply&amp;psc=1&amp;linkCode=ll1&amp;tag=albertarmeabl-20&amp;linkId=1bed8e9f956168b8e8d8903a7730d2f4">this wall adapter</a>
+or <a href="https://www.amazon.com/Anker-20100mAh-Portable-Charger-PowerCore/dp/B00X5RV14Y/ref=as_li_ss_tl?ie=UTF8&amp;qid=1516158179&amp;sr=8-3&amp;keywords=anker+power+bank&amp;linkCode=ll1&amp;tag=albertarmeabl-20&amp;linkId=8c68574efe7edc07cadf8f816025d8eb">this battery pack</a>.  I would have liked to use the
+AA batteries for power, but common DC-DC boost circuits like the
+<a href="https://www.adafruit.com/product/14">MintyBoost</a> only support up to 1A.</li>
+<li><a href="https://vetco.net/products/kapton-tape-18mm-wide-x-30-meters-long">Kapton tape</a> for insulation and mounting.</li>
+</ul>
+
+<h2 id="prototyping-on-a-breadboard">Prototyping on a breadboard</h2>
+
+<p>With the parts picked out, I needed to test the components on a breadboard.
+First, I removed the plastic case from the audio adapter using a spudger and
+soldered wires to the headphone and microphone contacts to make it more
+breadboard-friendly. Then I wired up the &ldquo;great sounding&rdquo; version of the
+amplifier circuit by following their schematic, and next to it I wired the two
+motor controllers using <a href="/post/alexa-tree/ba6286.pdf">the datasheet</a> and some
+experimentation. I omitted the volume potentiometer in the final circuit because
+there is one built in to the audio adapter.</p>
+
+<p><img src="/post/alexa-tree/breadboard.jpg" alt="Breadboard with amplifier and motor circuits" /></p>
+
+<p>The wires leaving the audio circuit go to the audio adapter&rsquo;s microphone in and
+headphone out.</p>
+
+<p>The motor controller isolates the power supply to itself from the supply for the
+motor. While this is useful for high-power applications, the 5V USB supply is
+sufficient for the tree&rsquo;s motors so I tied these pins together. The controller
+also has a pin to set the output current by connecting a resistor to 5V. On the
+breadboard, I used a potentiometer to determine the correct values. For the
+dancing motor, a 57 ohm resistor made the motor spin at the same speed as it did
+originally. The mouth needed the maximum current to stay open, so I just used a
+wire here. Before I soldered a connection from the logic input pins to the Pi, I
+measured the current through it by connecting an ammeter in series between each
+pin (pictured above as loose yellow wires connected to of the motor controllers)
+and a 3.3V supply. With the motor running, the current was on the order of
+microamps, which the Pi is able to drive without issues. Refer to the Raspberry
+Pi GPIO <a href="https://pinout.xyz/">pinout</a> when choosing pins.</p>
+
+<h2 id="final-assembly">Final assembly</h2>
+
+<p>Since I planned to make only one of these trees, I soldered the two circuits
+directly to a piece of perfboard. While this meant I didn&rsquo;t have to design and
+etch a printed circuit board, that might have been preferable: manually routing
+connections was time consuming, making intentional solder blobs for connections
+was annoying, and the extra wire length added some noise to the amplifier
+circuit. In the end, though, I was able to get the circuits to fit on a single
+board about the size of the Pi itself.</p>
+
+<!-- convert IMG_20171225_060602.jpg IMG_20171225_060614.jpg -crop 1588x1588+0+0 +append -strip -resize 1600 -interlace Plane -quality 70 perfboard.jpg -->
+
+<p><img src="/post/alexa-tree/protoboard.jpg" alt="Protoboard with motor control and amplifier circuits, front and
+back" /></p>
+
+<p>Because the bottom of the Pi and my circuits would be back-to-back, I insulated
+them with Kapton tape. Electrical tape probably would have been fine, but
+because the motor controllers got hot (but not burning) to the touch, I didn&rsquo;t
+want to take any chances.</p>
+
+<p>On the Pi, the red and black wires go to the 5V and ground &ldquo;rails&rdquo; on the
+perfboard. The white wires go to the switch, which works by tying GPIO pin 18 to
+ground when pushed. The blue wires go to the logic inputs of the motor
+controllers. The remaining wires are for the tree&rsquo;s LEDs. I connected a resistor
+in series to limit the current through the LEDs to 20 mA. (The tree has another
+set of LEDs too, but I accidentally burned them out while probing the components
+to figure out how they were wired.)</p>
+
+<p><img src="/post/alexa-tree/pi-connections.jpg" alt="Raspberry Pi with connections to tree and custom
+circuits" /></p>
+
+<p>Conveniently, the enclosure had a hole in front that was the perfect size for
+the microphone.</p>
+
+<p>Not so conveniently, my parts were still too big to fit in the enclosure. My
+solution was to cut off the battery bay and two screw terminals for some extra
+space, which also lets me access the SD card without disassembling the tree for
+installing Raspbian and Wi-Fi configuration. (When assembling the enclosure,
+make sure that the SD card slot is facing the bottom.)</p>
+
+<!-- convert IMG_20171225_081757.jpg -interlace Plane -quality 70 -strip -resize 1600 circuits-enclosure.jpg -->
+
+<p><img src="/post/alexa-tree/circuits-enclosure.jpg" alt="Circuits next to the enclosure, demonstrating their relative
+sizes" /></p>
+
+<p>Before screwing the enclosure shut, I connected a micro USB cable to the Pi&rsquo;s
+power input. Then I wrote down the GPIO pins the motors, button, and LEDs were
+connected to, and re-assembly was just the disassembly in reverse. I drilled a
+small hole in the battery cover for the USB cable before screwing it back on.</p>
+
+<h1 id="setting-up-alexa">Setting up Alexa</h1>
+
+<h2 id="raspbian-and-access-via-local-network">Raspbian and access via local network</h2>
+
+<p>The Raspberry Pi is stuck inside the tree with no way to display anything, so a
+graphical interface would just be bloat. As a result, I used the <a href="https://www.raspberrypi.org/downloads/raspbian/">Raspbian
+Stretch Lite</a> image to start with. Download and install the image
+according to <a href="https://www.raspberrypi.org/documentation/installation/installing-images/README.md">their instructions</a>.</p>
+
+<p>There is no keyboard, serial connection, or Ethernet port, so the next step is
+to set up Wi-Fi and SSH before booting up the Pi for the first time. In the SD
+card&rsquo;s boot partition, create a basic <code>wpa_supplicant.conf</code>. You may have to
+remove and reinsert the SD card into your computer if the boot partition isn&rsquo;t
+mounted after installing Raspbian.</p>
+
+<pre><code class="language-conf"># If you're not in the US, replace the country code for regulatory compliance
+country=US
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1
+
+# WPA
+network={
+	ssid=&quot;your network name&quot;
+	psk=&quot;your network password&quot;
+	key_mgmt=WPA-PSK
+}
+
+# WEP
+network={
+	ssid=&quot;your WEP network name&quot;
+	key_mgmt=NONE
+	wep_key0=0123456789
+	wep_tx_keyidx=0
+}
+
+# Public network
+network={
+	ssid=&quot;public network name&quot;
+	key_mgmt=NONE
+}
+
+# Add more network entries and the tree will connect to the first available one
+</code></pre>
+
+<p>Also in the boot partition, create an empty file named <code>ssh</code> to enable SSH.
+Unmount the SD card from your computer, put it in the tree&rsquo;s Pi, and plug in the
+tree to your USB power supply. With this configuration, Raspbian will boot,
+connect to one of the specified Wi-Fi networks, and enable SSH with the default
+credentials.</p>
+
+<p>Then, discover the Pi&rsquo;s IP address using <code>arp</code>, <code>nmap</code>, or another tool
+according to <a href="https://raspberrypi.stackexchange.com/questions/13936/find-raspberry-pi-address-on-local-network">this Stack Exchange post</a>. With the IP address in
+hand, connect to the Pi using the default username &ldquo;pi&rdquo; and password
+&ldquo;raspberry&rdquo;. This is very insecure &ndash; once connected, change the password via
+<code>passwd</code> to prevent others on your network from accessing your Pi.</p>
+
+<p>I also recommend these other steps for security hygiene:</p>
+
+<ul>
+<li>Set up <a href="https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys--2">key-based login</a> and optionally disable password login over
+SSH.</li>
+<li>Install <a href="https://packages.debian.org/jessie/fail2ban">fail2ban</a> to prevent brute-force login attacks.</li>
+<li>Set up <a href="https://wiki.debian.org/UnattendedUpgrades">automatic updates</a> via the <code>unattended-upgrades</code> and
+<code>apt-listchanges</code> packages.</li>
+</ul>
+
+<h2 id="alexapi-for-alexa">AlexaPi for Alexa</h2>
+
+<p>I decided to use <a href="https://github.com/alexa-pi/AlexaPi">AlexaPi</a> to actually call the Alexa Voice Service
+instead of <a href="https://github.com/alexa/alexa-avs-sample-app">Amazon&rsquo;s reference app</a> because AlexaPi lets you
+choose a wakeword engine, supports GPIO pins for triggers and status lights, and
+none of its components expire after 120 days.</p>
+
+<p>First, follow their <a href="https://github.com/alexa-pi/AlexaPi/wiki/Installation/53b3b23be05d8ef038ebe130fdba34c739e3e1bd#1-register-at-amazon">instructions to set up your Amazon
+account</a>. Then, install AlexaPi on your Pi:</p>
+
+<pre><code class="language-bash"># Install here for ease of use with their scripts
+cd /opt
+
+# Clone the AlexaPi repository
+sudo apt-get install git
+sudo git clone https://github.com/alexa-pi/AlexaPi.git
+cd AlexaPi
+
+# Latest from dev branch as of this writing, includes Snowboy wakeword detector
+sudo git checkout 8cc9f02
+
+# Install depenencies and setup account with their script
+sudo src/scripts/setup.sh
+</code></pre>
+
+<p>Then, I needed to set up PulseAudio to run in system-wide mode. The AlexaPi
+project has <a href="https://github.com/alexa-pi/AlexaPi/wiki/Audio-setup-&amp;-debugging/ef2c312c7fa1642b943318d0e635fc3f46164ac3#running-pa-in-system-wide-mode-recommended">some instructions</a> that mostly worked for me. I
+opted to use the VLC handler, but audio input did not work out of the box. What
+worked for me was to manually specify the input device rather than use &ldquo;pulse&rdquo;
+in AlexaPi&rsquo;s configuration. By default, this configuration is in
+<code>/etc/opt/AlexaPi/config.yaml</code>:</p>
+
+<pre><code class="language-yaml">sound:
+  # Name of your microphone device
+  # If you provide an invalid one, the log (`journalctl -u AlexaPi.service`)
+  # gives you a list of valid devices during startup
+  input_device: &quot;USB Audio Device: - (plughw:1,0)&quot;
+
+  playback_handler: &quot;vlc&quot;
+
+  output: &quot;pulseaudio&quot;
+  output_device: &quot;&quot;
+
+  # Set this to the highest level that doesn't distort
+  default_volume: 80
+</code></pre>
+
+<p>I also needed to configure ALSA to work with PulseAudio. Paste this into
+<code>/etc/asound.conf</code>:</p>
+
+<pre><code class="language-conf">pcm.!default {
+	type pulse
+}
+ctl.!default {
+	type pulse
+}
+</code></pre>
+
+<p>At this point, you should be able to reboot your Pi and once Alexa says &ldquo;Hello&rdquo;,
+the tree will work as an echo (albeit poorly). If not, check the log via
+<code>journalctl -u AlexaPi.service</code> to see what specifically went wrong. If you
+still need to set up the output device, I found the <a href="https://wiki.archlinux.org/index.php/PulseAudio/Examples#Set_the_default_output_source">Arch Wiki&rsquo;s documentation
+on PulseAudio</a> useful.</p>
+
+<p>While testing, I determined that <a href="https://snowboy.kitt.ai/">Snowboy</a>, a purpose-built hotword
+detector, was much more reliable than using the general-purpose speech
+recognizer <a href="https://cmusphinx.github.io/">CMUSphinx</a> for this purpose. To enable this, in AlexaPi&rsquo;s
+<code>config.yaml</code>, first disable the Sphinx recognizer and then enable Snowboy:</p>
+
+<pre><code class="language-yaml">triggers:
+  pocketsphinx:
+    enabled: false
+
+  snowboy:
+    enabled: true
+    voice_confirm: true
+
+    model: &quot;{distribution}/alexa/alexa_02092017.umdl&quot;
+    sensitivity: 0.5
+</code></pre>
+
+<p>To test these changes quickly, you can restart just the AlexaPi service without
+restarting the entire Pi with <code>sudo systemctl restart AlexaPi.service</code>.</p>
+
+<p>Given that I just stuffed Alexa into a Christmas tree, I figured an appropriate
+wake phrase would be &ldquo;Oh Christmas tree&rdquo;. On <a href="https://snowboy.kitt.ai/dashboard">Snowboy&rsquo;s
+dashboard</a>, you can train and download a new model for any
+phrase after creating an account. Alternately, you can just use <a href="/post/alexa-tree/Oh_Christmas_Tree.pmdl">my
+model</a>, though it might not work very well for you because
+it&rsquo;s trained only on my voice. You can also record some samples to improve my
+model on <a href="https://snowboy.kitt.ai/hotword/14881">its page</a>.</p>
+
+<p>Once you have a model, put it somewhere the alexapi account can access it and
+edit its configuration to use it:</p>
+
+<pre><code class="language-yaml">triggers:
+  snowboy:
+    model: &quot;/opt/AlexaPi/Oh_Christmas_Tree.pmdl&quot;
+</code></pre>
+
+<p>Finally, set up the GPIO pins to the pins so that they match the the pins you
+chose earlier for the motors, lights, and button. To test the mouth motor, I
+assigned its pin to the playback light. When testing, if the mouth moves but
+does not open, its motor is spinning in the wrong direction. Change the
+configuration to the mouth&rsquo;s alternate pin to spin the motor in the other
+direction and the mouth should open for all of Alexa&rsquo;s response.</p>
+
+<p>My complete AlexaPi <code>config.yaml</code> is available <a href="https://gist.github.com/aarmea/4f29cb7c4a46e6a1f936fe1950d7a87f">here</a>.</p>
+
+<div class="video-container">
+  <iframe src="https://www.youtube.com/embed/k3fyvoydrGU?showinfo=0" frameborder="0" allowfullscreen></iframe>
+</div>
+
+<h2 id="moving-the-mouth-naturally">Moving the mouth naturally</h2>
+
+<p>AlexaPi does not support animatronic mouth movements out of the box, so I
+researched how similar projects achieved mouth movements:</p>
+
+<ul>
+<li><a href="https://howchoo.com/g/otewzwmwnzb/amazon-echo-furby-using-raspberry-pi-furlexa">Furlexa</a>&rsquo;s gearing makes the mouth open and close continuously
+the entire time the motor is running. Unlike Furlexa, the tree&rsquo;s mouth opens
+when power is applied and closes when it is removed.</li>
+<li>The Echo Dot-based projects, like <a href="https://www.youtube.com/watch?v=3Nss_2_rwdE">Project Yorick</a> and <a href="https://www.youtube.com/watch?v=QIIQkEWcyrA">another
+Christmas tree</a>, apply a threshold to the Echo&rsquo;s sound output to
+determine the mouth&rsquo;s position. Unfortunately, these projects use dedicated
+hardware to do this, which I did not want to add.</li>
+<li>This <a href="https://anotherpiblog.blogspot.com/2017/01/billy-bass-alexa-and-raspberry-pi.html">Billy Bass Alexa clone</a> uses a Raspberry Pi for Alexa
+but has a separate microphone next to the speaker to capture the sound data
+needed to animate the mouth. This is another example of extra hardware that
+should not be necessary.</li>
+</ul>
+
+<p>My first thought was to patch AlexaPi to analyze the audio as it is being
+played. However, Amazon returns an MP3, and AlexaPi hands off playback
+responsibility to VLC. Decoding this again outside VLC just to control the
+motors seemed redundant.</p>
+
+<p>PulseAudio provides <a href="https://linux.die.net/man/1/pacat"><code>pacat</code></a> to redirect audio streams to files and
+vice versa, much like <code>cat</code> does for text. I used this to capture the system
+audio output in realtime with the <a href="https://pypi.python.org/pypi/RPi.GPIO">RPi.GPIO Python library</a> to
+control the motors in <a href="https://gist.github.com/aarmea/f3010fd58629acda9c458e883ee010b5">my script</a>. Change the mouth pin and
+PulseAudio source to match your hardware, then run the script (ideally inside a
+<code>tmux</code> or <code>screen</code> session so that you can disconnect from the Pi) to enable
+natural mouth movements.</p>
+
+<!-- ffmpeg -i VID_20180110_182049~2.mp4 -s 1280x720 -vframes 1 -q:v 5 VID_20180110_182049~2-web.jpg -->
+
+<video controls poster="/post/alexa-tree/moving-mouth.jpg">
+  <!-- ffmpeg -i VID_20180110_182049~2.mp4 -s 1280x720 -c:v libvpx-vp9 -crf 42 -b:v 0 VID_20180110_182049~2-web.webm -->
+  <source src="/post/alexa-tree/moving-mouth.webm" type="video/webm">
+  <!-- ffmpeg -i VID_20180110_182049~2.mp4 -s 1280x720 -c:v libx264 -crf 26 -b:v 0 VID_20180110_182049~2-web.mp4 -->
+  <source src="/post/alexa-tree/moving-mouth.mp4" type="video/mp4">
+</video>
+<div class="footnotes">
+
+<hr />
+
+<ol>
+<li id="fn:pi-zero-buy">I picked up my Pi Zero W at Micro Center during a previous trip to the east coast. As of this post, <a href="http://www.microcenter.com/product/486575/Zero_W">they have them for $5</a>.
+ <a class="footnote-return" href="#fnref:pi-zero-buy"><sup>[return]</sup></a></li>
+<li id="fn:vetco-microphone">At Vetco, this item corresponds to three sizes of microphone. I went with the largest one they had because it has an integrated amplifier circuit.
+ <a class="footnote-return" href="#fnref:vetco-microphone"><sup>[return]</sup></a></li>
+</ol>
+</div>
+        </div>
+
+        
+        
+        <div class="article-toc" >
+            <h3>Contents</h3>
+            <nav id="TableOfContents">
+<ul>
+<li><a href="#building-new-hardware">Building new hardware</a>
+<ul>
+<li><a href="#choosing-parts">Choosing parts</a></li>
+<li><a href="#prototyping-on-a-breadboard">Prototyping on a breadboard</a></li>
+<li><a href="#final-assembly">Final assembly</a></li>
+</ul></li>
+<li><a href="#setting-up-alexa">Setting up Alexa</a>
+<ul>
+<li><a href="#raspbian-and-access-via-local-network">Raspbian and access via local network</a></li>
+<li><a href="#alexapi-for-alexa">AlexaPi for Alexa</a></li>
+<li><a href="#moving-the-mouth-naturally">Moving the mouth naturally</a></li>
+</ul></li>
+</ul>
+</nav>
+        </div>
+        
+        
+
+        
+
+
+        
+    </div>
+    
+        <nav id="article-nav">
+    
+    <a href="/post/opencv-stereo-camera/" id="article-nav-newer" class="article-nav-link-wrap">
+        <div class="article-nav-title"><span>&lt;</span>&nbsp;
+            Calculating a depth map from a stereo camera with OpenCV
+        </div>
+    </a>
+    
+    
+</nav>
+
+    
+</article>
+
+        
+    </section>
+    <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            &copy; 2018 Albert Armea&nbsp;
+            Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> with theme <a href="https://github.com/carsonip/hugo-theme-minos">Minos</a>
+        </div>
+    </div>
+    
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/tomorrow-night.min.css" integrity="sha256-2wL88NKUqvJi/ExflDzkzUumjUM73mcK2gBvBBeLvTk=" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js" integrity="sha256-KbfTjB0WZ8vvXngdpJGY3Yp3xKk+tttbqClO11anCIU=" crossorigin="anonymous"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    
+    <script>
+        document.getElementById('main-nav-toggle').addEventListener('click', function () {
+            var header = document.getElementById('header');
+            if (header.classList.contains('mobile-on')) {
+                header.classList.remove('mobile-on');
+            } else {
+                header.classList.add('mobile-on');
+            }
+        });
+
+        
+        
+        (function() {
+            var tolerance = 40; 
+
+            function playPauseVideos() {
+                var elementsToAutoplay = document.getElementsByClassName('playpause-with-visibility');
+                var scrollTop = window.pageYOffset + tolerance;
+                var scrollBottom = window.pageYOffset + window.innerHeight - tolerance;
+
+                for (var i = 0; i < elementsToAutoplay.length; ++i) {
+                    if (elementsToAutoplay[i].tagName !== 'VIDEO')
+                        continue;
+
+                    var video = elementsToAutoplay[i];
+
+                    
+                    if (video.loop) {
+                        video.controls = false;
+                        video.muted = true;
+                    }
+
+                    video.autoplay = false;
+
+                    var videoTop = video.offsetTop;
+                    var videoBottom = video.offsetTop + video.offsetHeight;
+                    if (scrollTop < videoBottom && scrollBottom > videoTop) {
+                        video.play();
+                    } else {
+                        video.pause();
+                    }
+                }
+            }
+
+            window.addEventListener('load', playPauseVideos);
+            window.addEventListener('scroll', playPauseVideos);
+            window.addEventListener('resize', playPauseVideos);
+        })();
+    </script>
+</footer>
+
+</div>
+</body>
+</html>

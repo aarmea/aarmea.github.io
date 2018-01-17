@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>https://albertarmea.com/post/alexa-tree/</loc>
+    <lastmod>2018-01-17T00:02:13+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://albertarmea.com/post/opencv-stereo-camera/</loc>
     <lastmod>2017-10-01T20:49:33-07:00</lastmod>
   </url>
@@ -23,7 +28,16 @@
   
   <url>
     <loc>https://albertarmea.com/</loc>
-    <lastmod>2017-10-01T20:49:33-07:00</lastmod>
+    <lastmod>2018-01-17T00:02:13+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://albertarmea.com/aside/alexa-tree-teardown/</loc>
+  </url>
+  
+  <url>
+    <loc>https://albertarmea.com/aside/</loc>
     <priority>0</priority>
   </url>
   
@@ -39,7 +53,7 @@
   
   <url>
     <loc>https://albertarmea.com/post/</loc>
-    <lastmod>2017-10-01T20:49:33-07:00</lastmod>
+    <lastmod>2018-01-17T00:02:13+00:00</lastmod>
     <priority>0</priority>
   </url>
   

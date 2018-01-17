@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>About | Albert Armea</title>
+    <title>Animatronic tree teardown | Albert Armea</title>
 
         <meta charset="utf-8">
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
@@ -9,11 +9,11 @@
     <meta name="description" content="">
     <meta name="keywords" content="">
     <meta name="author" content="">
-        <meta property="og:title" content="About" />
+        <meta property="og:title" content="Animatronic tree teardown" />
     <meta property="og:description" content="" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="en_US" />
-    <meta property="og:url" content="https://albertarmea.com/page/about/" />
+    <meta property="og:url" content="https://albertarmea.com/aside/alexa-tree-teardown/" />
     
 
     <link href="" rel="alternate" type="application/rss+xml" title="Albert Armea" />
@@ -56,7 +56,7 @@
     <div class="article-inner">
         
         <header class="article-header">
-            <h1 class="article-title" itemprop="name">About</h1>
+            <h1 class="article-title" itemprop="name">Animatronic tree teardown</h1>
         </header>
         
         <div class="article-meta">
@@ -66,65 +66,70 @@
             
         </div>
         <div class="article-entry" itemprop="articleBody">
-            
+            <p></p>
 
-<p>I make things &ndash; usually software, but sometimes also hardware, videos, and
-music. On this site, I document the process of making these things and
-interesting (and occasionally unrelated) adventures that happen along the way.</p>
+<p>After removing the screw for the battery cover, the next piece to go is a clamp
+holding a plastic enclosure to the fabric. This is held in place with four
+screws.</p>
 
-<p>You can also find me on:</p>
+<!-- convert -strip -resize 1600 -interlace Plane -quality 70 IMG_20171214_132259.jpg IMG_20171214_132259-web.jpg -->
 
-<ul>
-<li><a href="https://github.com/aarmea/">GitHub</a></li>
-<li><a href="https://www.thingiverse.com/aarmea/designs">Thingiverse</a></li>
-<li><a href="https://www.youtube.com/channel/UCnhhM5-D-hMGzNH_zk8vVwg">YouTube</a></li>
-<li><a href="https://www.reddit.com/user/aarmea">Reddit</a></li>
-<li><a href="https://keybase.io/aarmea">Keybase</a></li>
-<li><a href="https://www.linkedin.com/in/aarmea/">LinkedIn</a></li>
-</ul>
+<p><img src="/post/alexa-tree/battery-cover.jpg" alt="Removing the battery cover" /></p>
 
-<p>&hellip; or you can <a href="mailto:website@albertarmea.com">send me an email</a>.</p>
+<p>This enclosure will need to come out of the tree somehow. The best way to do
+this is probably to rip the seams at the back, but I was worried about letting
+too much stuffing fall out so I cut just enough fabric to remove the enclosure.</p>
 
-<p>My resume can be found <a href="/docs/resume.pdf">here</a>.</p>
+<!-- convert -strip -resize 1600 -interlace Plane -quality 70 IMG_20171214_133209.jpg IMG_20171214_133209-web.jpg -->
 
-<h1 id="site">Site</h1>
+<p><img src="/post/alexa-tree/fabric-cut.jpg" alt="Cutting the fabric" /></p>
 
-<p>This site is generated with <a href="https://gohugo.io">Hugo</a> using <a href="https://github.com/aarmea/hugo-theme-minos">a modified version
-of the Minos theme</a> and hosted by
-<a href="https://pages.github.com/">GitHub Pages</a>. The Markdown source and site
-configuration can be found <a href="https://github.com/aarmea/albertarmea.com-v2">on
-GitHub</a>.</p>
+<p>The enclosure is attached to the tree&rsquo;s head with a hidden screw. At the back of
+the tree, pull the bottom of the fabric towards its head, and the screw will be
+on a clear piece of fabric at the top of the enclosure.</p>
 
-<p>The <a href="http://albertarmea.com/static">previous home page</a> and the <a href="http://blog.albertarmea.com">previous
-blog</a> are still available at their original
-locations.</p>
+<!-- convert -strip -resize 1600 -interlace Plane -quality 70 IMG_20171214_133536.jpg IMG_20171214_133536-web.jpg -->
 
-<h1 id="legal">Legal</h1>
+<p><img src="/post/alexa-tree/hidden-screw.jpg" alt="Location of hidden screw" /></p>
 
-<p>Unless specified otherwise, the content on this site is made available under the
-<a href="https://choosealicense.com/licenses/cc-by-4.0/">Creative Commons Attribution 4.0
-license</a>. Code snippets on this
-site are also made available under the <a href="https://choosealicense.com/licenses/mit/">MIT
-license</a>.</p>
+<p>With this screw removed, the enclosure will freely come out of the tree. There
+are a few sets of wires attached to it: one pair of white wires for the
+push-to-play button, one multicolored set of wires for the LEDs, and red and
+white wires leading to the mouth. The button and LED wires have connectors, so
+disconnect them. The mouth wires do not have a connector, so I just had to be
+careful while working with the other parts.</p>
 
-<p>Links on this site to Amazon.com are affiliate links. I will receive a portion
-of the proceeds if a purchase is made via these links.</p>
+<p>The enclosure itself is held together with four screws and two small blobs of
+hot glue. Remove these to reveal the tree&rsquo;s controller, dancing motor, and a
+speaker.</p>
 
-<p>The views expressed here are my own and not my employer&rsquo;s.</p>
+<video autoplay loop muted class="playpause-with-visibility">
+  <!-- ffmpeg -i VID_20171214_134048~2.mp4 -s 1280x720 -c:v libvpx-vp9 -crf 42 -b:v 0 -an VID_20171214_134048~2-web.webm -->
+  <source src="/post/alexa-tree/open-assembly.webm" type="video/webm">
+  <!-- ffmpeg -i VID_20171214_134048~2.mp4 -s 1280x720 -c:v libx264 -crf 26 -b:v 0 -an VID_20171214_134048~2-web.mp4 -->
+  <source src="/post/alexa-tree/open-assembly.mp4" type="video/mp4">
+</video>
 
+<p>With the enclosure open, I was able to examine the components and probe the
+board while it&rsquo;s running. The tree is powered by 3 AA batteries in series for a
+total of 4.5V.  Dancing is controlled by one DC motor driven at 3.5V, and the
+mouth is controlled by another DC motor also driven at 3.5V. The dancing motor
+is in a gearbox that lets the tree dance continuously without ever needing to
+change motor direction. Similarly, the mouth seems to be on a spring that closes
+it when the voltage is removed to avoid the need for a servo. While I probably
+should have measured the motors&rsquo; current draws individually, when I powered the
+tree with a bench power supply, I saw that it never drew more than 2A total at
+4.5V.</p>
+
+<video autoplay loop muted class="playpause-with-visibility">
+  <!-- ffmpeg -i VID_20171214_141103~2.mp4 -s 1280x720 -r 30 -c:v libvpx-vp9 -crf 40 -b:v 0 -an VID_20171214_141103~2-web.webm -->
+  <source src="/post/alexa-tree/motor-probe.webm" type="video/webm">
+  <!-- ffmpeg -i VID_20171214_141103~2.mp4 -s 1280x720 -r 30 -c:v libx264 -crf 26 -b:v 0 -an VID_20171214_141103~2-web.mp4 -->
+  <source src="/post/alexa-tree/motor-probe.mp4" type="video/mp4">
+</video>
         </div>
 
         
-        
-        <div class="article-toc" >
-            <h3>Contents</h3>
-            <nav id="TableOfContents">
-<ul>
-<li><a href="#site">Site</a></li>
-<li><a href="#legal">Legal</a></li>
-</ul>
-</nav>
-        </div>
         
         
 
