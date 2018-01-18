@@ -675,19 +675,20 @@ a.article-title:hover,
 .article-toc {
   display: none;
   position: fixed;
-  left: 50%;
+  right: 50%;
   top: 110px;
   font-size: 0.9em;
   width: 260px;
-  margin-left: 400px;
-  padding-left: 20px;
+  margin-right: 400px;
+  padding-right: 20px;
   overflow-y: auto;
   line-height: 1.4em;
   max-height: 85%;
 }
 .article-toc h3 {
   font-weight: bold;
-  margin-left: 20px;
+  font-size: 14pt;
+  margin: 0 0 14px 20px;
 }
 .article-toc li {
   list-style: none;
@@ -1096,4 +1097,13 @@ pre .php .xml {
   font-size: 16px;
   font-family: 'PT Serif', 'STZhongsong', '华文中宋', 'Microsoft Yahei', serif;
   text-shadow: 1px 3px 3px rgba(0,0,0,0.5);
+}
+.article-entry p,
+.article-entry ul,
+.article-entry li {
+  line-height: 1.75em;
+  font-size: 16pt;
+}
+.article-entry pre {
+  font-size: 12pt;
 }
