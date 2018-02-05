@@ -347,7 +347,7 @@ ctl.!default {
 </code></pre>
 
 <p>At this point, you should be able to reboot your Pi and once Alexa says &ldquo;Hello&rdquo;,
-the tree will work as an echo (albeit poorly). If not, check the log via
+the tree will work as an Echo (albeit poorly). If not, check the log via
 <code>journalctl -u AlexaPi.service</code> to see what specifically went wrong. If you
 still need to set up the output device, I found the <a href="https://wiki.archlinux.org/index.php/PulseAudio/Examples#Set_the_default_output_source">Arch Wiki&rsquo;s documentation
 on PulseAudio</a> useful.</p>
@@ -370,7 +370,8 @@ recognizer <a href="https://cmusphinx.github.io/">CMUSphinx</a> for this purpose
 </code></pre>
 
 <p>To test these changes quickly, you can restart just the AlexaPi service without
-restarting the entire Pi with <code>sudo systemctl restart AlexaPi.service</code>.</p>
+restarting the entire Pi with <code>sudo systemctl restart AlexaPi.service</code>. The
+wakeword will still be &ldquo;Alexa&rdquo;, but it should be much more responsive.</p>
 
 <p>Given that I just stuffed Alexa into a Christmas tree, I figured an appropriate
 wake phrase would be &ldquo;Oh Christmas tree&rdquo;. On <a href="https://snowboy.kitt.ai/dashboard">Snowboy&rsquo;s
@@ -380,8 +381,9 @@ model</a>, though it might not work very well for you because
 it&rsquo;s trained only on my voice. You can also record some samples to improve my
 model on <a href="https://snowboy.kitt.ai/hotword/14881">its page</a>.</p>
 
-<p>Once you have a model, put it somewhere the alexapi account can access it and
-edit its configuration to use it:</p>
+<p>Once you have a model file, copy it to the Pi somewhere the alexapi account can
+access, like inside <code>/opt/AlexaPi</code>, using <code>scp</code> or a graphical tool like
+<a href="https://filezilla-project.org/">FileZilla</a>. Then, edit AlexaPi&rsquo;s configuration to use the model:</p>
 
 <pre><code class="language-yaml">triggers:
   snowboy:
