@@ -6,10 +6,31 @@
     <description>Recent content on Albert Armea</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 17 Jan 2018 00:02:13 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 26 Mar 2018 02:41:36 -0700</lastBuildDate>
     
 	<atom:link href="https://albertarmea.com/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Creating Bluetooth sockets on Android without pairing</title>
+      <link>https://albertarmea.com/post/bt-auto-connect/</link>
+      <pubDate>Mon, 26 Mar 2018 02:41:36 -0700</pubDate>
+      
+      <guid>https://albertarmea.com/post/bt-auto-connect/</guid>
+      <description>&lt;video autoplay loop muted class=&#34;playpause-with-visibility&#34;&gt;
+  &lt;!--
+    `ffmpeg -t 0:00:12 -i noise-demo-2018-03-24_15.55.55.mkv -r 10 noise-demo_%05d.png`
+    Manually remove bad frames
+    `ffmpeg -framerate 10 -pattern_type glob -i &#34;noise-demo_*.png&#34; -pix_fmt yuv420p -c:v libx264 -crf 32 -b:v 0 -an noise-demo-web.mp4`
+  --&gt;
+  &lt;source src=&#34;https://albertarmea.com/post/bt-auto-connect/noise-demo-web.mp4&#34;&gt;
+  &lt;!--No webm because it&#39;s always noticeably worse at this filesize?--&gt;
+&lt;/video&gt;
+
+&lt;p&gt;I implemented a way to automatically create Bluetooth Classic sockets between two nearby Android devices running the same app. This method works continuously in the background without wakelocks, and it does not require pairing, root, or any user interaction.&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>Making animatronics useful with Alexa</title>
