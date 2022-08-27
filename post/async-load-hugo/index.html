@@ -3,30 +3,29 @@
 <head>
     <title>Asynchronously loading pages in a Hugo site | Albert Armea</title>
 
-        <meta charset="utf-8">
+    <meta charset="utf-8">
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-    <meta name="description" content="">
-    <meta name="keywords" content="">
-    <meta name="author" content="">
+    
+    
+    
+
         <meta property="og:title" content="Asynchronously loading pages in a Hugo site" />
     <meta property="og:description" content="" />
     <meta property="og:type" content="website" />
-    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale" content="en" />
     <meta property="og:url" content="https://albertarmea.com/post/async-load-hugo/" />
     
 
-    <link href="" rel="alternate" type="application/rss+xml" title="Albert Armea" />
-    <link rel="shortcut icon" href="/favicon.png">
+    <link rel="shortcut icon" href="/favicon.ico">
 
     <link href="https://albertarmea.com/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
     <link href="https://albertarmea.com/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
 
     <link rel="stylesheet" href="https://albertarmea.com/css/style.css">
+    
 
-    <link href="http://gmpg.org/xfn/11" rel="profile">
-
-    <meta name="generator" content="Hugo 0.38" />
+    <meta name="generator" content="Hugo 0.101.0" />
 </head>
 
 
@@ -51,6 +50,7 @@
         </div>
     </div>
 </header>
+
     <section id="main" class="outer">
         <article class="article article-type-post" itemscope itemprop="blogPost">
     <div class="article-inner">
@@ -61,10 +61,6 @@
         
         <div class="article-meta">
             
-            <a href="/post/async-load-hugo/" class="article-date">
-                <time datetime='2017-08-30T23:39:16.000-07:00' itemprop="datePublished">2017-08-30</time>
-            </a>
-            
             
             
             
@@ -74,15 +70,14 @@
 <a href="https://aarmea.github.io/mfw-singlepage/">here</a> or read the code
 <a href="https://github.com/aarmea/mfw-singlepage/tree/e17c04d/">here</a>.</p>
 
-<video autoplay loop muted class="playpause-with-visibility">
-  <source src="/post/async-load-hugo/main.webm" type="video/webm">
-  <source src="/post/async-load-hugo/main.mp4" type="video/mp4">
-</video>
 
-<p></p>
+  <video autoplay loop muted class="playpause-with-visibility">
+    <source src="/post/async-load-hugo/main.webm" type="video/webm">
+    <source src="/post/async-load-hugo/main.mp4" type="video/mp4">
+  </video>
+
 
 <h1 id="using-hugo-for-a-podcast-site">Using Hugo for a podcast site</h1>
-
 <p>A few weeks ago, one of my friends asked me to help with the website for a
 podcast he was starting. Two of our requirements were that it needed to be a
 static site, mostly to save on hosting costs, and that it must have seamless
@@ -91,7 +86,6 @@ the site. The websites of podcast <a href="http://99percentinvisible.org/">99%
 Invisible</a> and audio hosting service
 <a href="https://soundcloud.com/">SoundCloud</a> both have excellent implementations of
 seamless playback.</p>
-
 <p>I eventually settled on the static site generator <a href="https://gohugo.io/">Hugo</a>
 because it <a href="https://gohugo.io/content-management/types/">natively supports post categories independently from content
 types</a>, which we need to post both
@@ -101,20 +95,15 @@ seamless playback (and it even has a <a href="https://github.com/JCB-K/singlepag
 plugin</a>), but because it only loads
 the actual content of a page via an AJAX call, that content will not be
 available to search engines or other users that disable JavaScript.</p>
-
 <p>My prototype implements seamless playback in Hugo from scratch. Once you play
 the podcast, click around in the site. This will not stop playback &ndash; internal
 links load asynchronously and external links load in a new tab. With JavaScript
 disabled, you will at least be able to read the text content of the site.</p>
-
 <h1 id="pardon-the-dust">Pardon the dust</h1>
-
 <p>The code here is the <em>absolute minimum</em> needed to implement this functionality,
 so I&rsquo;m intentionally ignoring some best practices: there&rsquo;s no CSS at all and the
 JavaScript is defined inline, among others.</p>
-
 <h1 id="writing-a-hugo-theme">Writing a Hugo theme</h1>
-
 <p><a href="https://gohugo.io/themes/creating/">Hugo&rsquo;s documentation on creating a theme</a>
 tells you to run <code>hugo new theme [name]</code>, which is supposed to generate a
 scaffold of your new theme. I needed a place to define a base container template
@@ -123,37 +112,32 @@ file for this is
 <code>layouts/_default/baseof.html</code></a> but as of
 this post, <a href="https://github.com/gohugoio/hugo/issues/3576">Hugo does not create this file for
 you</a>.</p>
-
 <p>Inside this file, I wrote a minimal HTML page with a header, a footer, and room
 for content. Hugo will populate <code>{{ block &quot;main&quot; . }}</code> with the page&rsquo;s content
 when the site is generated, and our JavaScript will change <code>#mainContent</code> as the
 user clicks on links.</p>
-
-<pre><code class="language-html">&lt;!DOCTYPE html&gt;
-&lt;html lang=&quot;{{ .Site.LanguageCode }}&quot;&gt;
-  &lt;head&gt;
-    {{ .Hugo.Generator }}
-    &lt;meta charset=&quot;utf-8&quot;&gt;
-    &lt;title&gt;{{ block &quot;title&quot; . }}{{ .Title }} | {{ .Site.Title }}{{ end }}&lt;/title&gt;
-  &lt;/head&gt;
-  &lt;body&gt;
-    &lt;header&gt;
-      &lt;h1&gt;&lt;a href=&quot;{{ &quot;/&quot; | relURL }}&quot;&gt;{{ .Site.Title }}&lt;/a&gt;&lt;/h1&gt;
-    &lt;/header&gt;
-    &lt;main id=&quot;mainContent&quot;&gt;{{ block &quot;main&quot; . }}{{ end }}&lt;/main&gt;
-    &lt;footer&gt;
-      &lt;a href=&quot;https://github.com/aarmea/mfw-singlepage&quot;&gt;mfw-singlepage&lt;/a&gt;
-      theme for &lt;a href=&quot;https://gohugo.io&quot;&gt;Hugo&lt;/a&gt;
-    &lt;/footer&gt;
-  &lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-
-<p>The <code>&lt;header&gt;</code> and <code>&lt;footer&gt;</code> should probably be split out into their own
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-html" data-lang="html"><span style="display:flex;"><span><span style="color:#75715e">&lt;!DOCTYPE html&gt;</span>
+</span></span><span style="display:flex;"><span>&lt;<span style="color:#f92672">html</span> <span style="color:#a6e22e">lang</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;{{ .Site.LanguageCode }}&#34;</span>&gt;
+</span></span><span style="display:flex;"><span>  &lt;<span style="color:#f92672">head</span>&gt;
+</span></span><span style="display:flex;"><span>    {{ .Hugo.Generator }}
+</span></span><span style="display:flex;"><span>    &lt;<span style="color:#f92672">meta</span> <span style="color:#a6e22e">charset</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;utf-8&#34;</span>&gt;
+</span></span><span style="display:flex;"><span>    &lt;<span style="color:#f92672">title</span>&gt;{{ block &#34;title&#34; . }}{{ .Title }} | {{ .Site.Title }}{{ end }}&lt;/<span style="color:#f92672">title</span>&gt;
+</span></span><span style="display:flex;"><span>  &lt;/<span style="color:#f92672">head</span>&gt;
+</span></span><span style="display:flex;"><span>  &lt;<span style="color:#f92672">body</span>&gt;
+</span></span><span style="display:flex;"><span>    &lt;<span style="color:#f92672">header</span>&gt;
+</span></span><span style="display:flex;"><span>      &lt;<span style="color:#f92672">h1</span>&gt;&lt;<span style="color:#f92672">a</span> <span style="color:#a6e22e">href</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;{{ &#34;</span><span style="color:#960050;background-color:#1e0010">/&#34;</span> <span style="color:#960050;background-color:#1e0010">|</span> <span style="color:#a6e22e">relURL</span> <span style="color:#960050;background-color:#1e0010">}}&#34;</span>&gt;{{ .Site.Title }}&lt;/<span style="color:#f92672">a</span>&gt;&lt;/<span style="color:#f92672">h1</span>&gt;
+</span></span><span style="display:flex;"><span>    &lt;/<span style="color:#f92672">header</span>&gt;
+</span></span><span style="display:flex;"><span>    &lt;<span style="color:#f92672">main</span> <span style="color:#a6e22e">id</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;mainContent&#34;</span>&gt;{{ block &#34;main&#34; . }}{{ end }}&lt;/<span style="color:#f92672">main</span>&gt;
+</span></span><span style="display:flex;"><span>    &lt;<span style="color:#f92672">footer</span>&gt;
+</span></span><span style="display:flex;"><span>      &lt;<span style="color:#f92672">a</span> <span style="color:#a6e22e">href</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;https://github.com/aarmea/mfw-singlepage&#34;</span>&gt;mfw-singlepage&lt;/<span style="color:#f92672">a</span>&gt;
+</span></span><span style="display:flex;"><span>      theme for &lt;<span style="color:#f92672">a</span> <span style="color:#a6e22e">href</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;https://gohugo.io&#34;</span>&gt;Hugo&lt;/<span style="color:#f92672">a</span>&gt;
+</span></span><span style="display:flex;"><span>    &lt;/<span style="color:#f92672">footer</span>&gt;
+</span></span><span style="display:flex;"><span>  &lt;/<span style="color:#f92672">body</span>&gt;
+</span></span><span style="display:flex;"><span>&lt;/<span style="color:#f92672">html</span>&gt;
+</span></span></code></pre></div><p>The <code>&lt;header&gt;</code> and <code>&lt;footer&gt;</code> should probably be split out into their own
 <a href="https://gohugo.io/templates/partials/">partial templates</a> so that you can
 cleanly add your own embedded media here. However, they should not vary per page
 because they are never reloaded to avoid interrupting media playback.</p>
-
 <p>While <code>baseof.html</code> defines the base template, the actual pages are defined
 elsewhere and work by defining <a href="https://gohugo.io/variables/">variables</a>, like
 the previously mentioned <code>{{ block &quot;main&quot; . }}</code>, that are substituted into the
@@ -162,50 +146,41 @@ template. The homepage layout is at
 and the individual post layout is at
 <a href="https://github.com/aarmea/mfw-singlepage/tree/e17c04dbc59b93b6dbb50b0cfa8660fb464d864d/layouts/_default"><code>layouts/_default/single.html</code></a>.
 Default layouts can be overridden on a per-section basis in <code>layouts/[section]</code>.</p>
-
 <p>When writing the theme, I also referenced the source of the <a href="https://comfusion.github.io/after-dark/">After
 Dark</a> and
 <a href="https://github.com/yihui/hugo-xmin">hugo-xmin</a> themes as examples.</p>
-
 <h1 id="loading-pages-asynchronously">Loading pages asynchronously</h1>
-
 <p>Loading the site&rsquo;s pages is done in a few steps: override the link action,
 retrieve and display the content, and update the back stack and displayed URL.</p>
-
 <h2 id="override-the-link-click-action">Override the link click action</h2>
-
 <p>The easiest way to do this is to register a click handler on the <code>&lt;body&gt;</code> and do
 nothing if the click event was not on a link:</p>
-
-<pre><code class="language-javascript">window.onload = function() {
-  // Make links load asynchronously
-  document.body.addEventListener(&quot;click&quot;, function(event) {
-    if (event.target.tagName !== &quot;A&quot;)
-      return;
-
-    // History API needed to make sure back and forward still work
-    if (history === null)
-      return;
-
-    event.preventDefault();
-
-    // External links should instead open in a new tab
-    var newUrl = event.target.href;
-    var domain = window.location.origin;
-    if (typeof domain !== &quot;string&quot; || newUrl.search(domain) !== 0) {
-      window.open(newUrl, &quot;_blank&quot;);
-    } else {
-      loadPage(newUrl);
-      history.pushState(null /*stateObj*/, &quot;&quot; /*title*/, newUrl);
-    }
-  });
-}
-</code></pre>
-
-<p>Setting up this behavior this way, as opposed to adding the click handler to
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span>window.<span style="color:#a6e22e">onload</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>() {
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// Make links load asynchronously
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  document.<span style="color:#a6e22e">body</span>.<span style="color:#a6e22e">addEventListener</span>(<span style="color:#e6db74">&#34;click&#34;</span>, <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">event</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">event</span>.<span style="color:#a6e22e">target</span>.<span style="color:#a6e22e">tagName</span> <span style="color:#f92672">!==</span> <span style="color:#e6db74">&#34;A&#34;</span>)
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">return</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// History API needed to make sure back and forward still work
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">history</span> <span style="color:#f92672">===</span> <span style="color:#66d9ef">null</span>)
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">return</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">event</span>.<span style="color:#a6e22e">preventDefault</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// External links should instead open in a new tab
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">newUrl</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">event</span>.<span style="color:#a6e22e">target</span>.<span style="color:#a6e22e">href</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">domain</span> <span style="color:#f92672">=</span> window.<span style="color:#a6e22e">location</span>.<span style="color:#a6e22e">origin</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (<span style="color:#66d9ef">typeof</span> <span style="color:#a6e22e">domain</span> <span style="color:#f92672">!==</span> <span style="color:#e6db74">&#34;string&#34;</span> <span style="color:#f92672">||</span> <span style="color:#a6e22e">newUrl</span>.<span style="color:#a6e22e">search</span>(<span style="color:#a6e22e">domain</span>) <span style="color:#f92672">!==</span> <span style="color:#ae81ff">0</span>) {
+</span></span><span style="display:flex;"><span>      window.<span style="color:#a6e22e">open</span>(<span style="color:#a6e22e">newUrl</span>, <span style="color:#e6db74">&#34;_blank&#34;</span>);
+</span></span><span style="display:flex;"><span>    } <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">loadPage</span>(<span style="color:#a6e22e">newUrl</span>);
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">history</span>.<span style="color:#a6e22e">pushState</span>(<span style="color:#66d9ef">null</span> <span style="color:#75715e">/*stateObj*/</span>, <span style="color:#e6db74">&#34;&#34;</span> <span style="color:#75715e">/*title*/</span>, <span style="color:#a6e22e">newUrl</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  });
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Setting up this behavior this way, as opposed to adding the click handler to
 every <code>&lt;a&gt;</code> individually, means that I won&rsquo;t have to register more handlers
 when loading a new page.</p>
-
 <p>It might be better to use the
 <a href="https://developer.mozilla.org/en-US/docs/Web/Events/DOMContentLoaded">DOMContentLoaded</a>
 event or <a href="https://learn.jquery.com/using-jquery-core/document-ready/"><code>$(document).ready</code> from
@@ -213,100 +188,76 @@ jQuery</a> here because
 this functionality doesn&rsquo;t depend on images and other content loading, but
 <a href="http://mdn.beonex.com/en/DOM/window.onload.html"><code>window.onload</code> waits for those
 anyway</a>. Alternately, I could
-have just given the click handler a name and set it directly on the <code>&lt;body
-onclick=&quot;...&quot;&gt;</code>.</p>
-
+have just given the click handler a name and set it directly on the <code>&lt;body onclick=&quot;...&quot;&gt;</code>.</p>
 <h2 id="retrieve-and-display-the-new-content">Retrieve and display the new content</h2>
-
 <p><code>loadPage()</code> does the AJAX call needed to get the new content. Using a raw
 <a href="https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest"><code>XMLHttpRequest</code></a>
 isn&rsquo;t exactly a one-liner like <a href="https://api.jquery.com/jQuery.get/">jQuery&rsquo;s
 <code>get()</code></a>, but it&rsquo;s not too far off:</p>
-
-<pre><code class="language-javascript">function loadPage(newUrl) {
-  var httpRequest = new XMLHttpRequest();
-  httpRequest.onreadystatechange = function() {
-    if (httpRequest.readyState !== XMLHttpRequest.DONE)
-      return;
-
-    var newDocument = httpRequest.responseXML;
-    if (newDocument === null)
-      return;
-
-    var newContent = httpRequest.responseXML.getElementById(&quot;mainContent&quot;);
-    if (newContent === null)
-      return;
-
-    document.title = newDocument.title;
-
-    var contentElement = document.getElementById(&quot;mainContent&quot;);
-    contentElement.replaceWith(newContent);
-  }
-
-  httpRequest.responseType = &quot;document&quot;;
-  httpRequest.open(&quot;GET&quot;, newUrl);
-  httpRequest.send();
-};
-</code></pre>
-
-<p><code>XMLHttpRequest</code> is capable of parsing the response as HTML. To do this, set its
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">loadPage</span>(<span style="color:#a6e22e">newUrl</span>) {
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">httpRequest</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">XMLHttpRequest</span>();
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">httpRequest</span>.<span style="color:#a6e22e">onreadystatechange</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">httpRequest</span>.<span style="color:#a6e22e">readyState</span> <span style="color:#f92672">!==</span> <span style="color:#a6e22e">XMLHttpRequest</span>.<span style="color:#a6e22e">DONE</span>)
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">return</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">newDocument</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">httpRequest</span>.<span style="color:#a6e22e">responseXML</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">newDocument</span> <span style="color:#f92672">===</span> <span style="color:#66d9ef">null</span>)
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">return</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">newContent</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">httpRequest</span>.<span style="color:#a6e22e">responseXML</span>.<span style="color:#a6e22e">getElementById</span>(<span style="color:#e6db74">&#34;mainContent&#34;</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">newContent</span> <span style="color:#f92672">===</span> <span style="color:#66d9ef">null</span>)
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">return</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    document.<span style="color:#a6e22e">title</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">newDocument</span>.<span style="color:#a6e22e">title</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">contentElement</span> <span style="color:#f92672">=</span> document.<span style="color:#a6e22e">getElementById</span>(<span style="color:#e6db74">&#34;mainContent&#34;</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">contentElement</span>.<span style="color:#a6e22e">replaceWith</span>(<span style="color:#a6e22e">newContent</span>);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">httpRequest</span>.<span style="color:#a6e22e">responseType</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;document&#34;</span>;
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">httpRequest</span>.<span style="color:#a6e22e">open</span>(<span style="color:#e6db74">&#34;GET&#34;</span>, <span style="color:#a6e22e">newUrl</span>);
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">httpRequest</span>.<span style="color:#a6e22e">send</span>();
+</span></span><span style="display:flex;"><span>};
+</span></span></code></pre></div><p><code>XMLHttpRequest</code> is capable of parsing the response as HTML. To do this, set its
 <code>responseType</code> to <code>&quot;document&quot;</code> before sending the request and wait for
 <code>readyState</code> to become <code>XMLHttpRequest.DONE</code>. Then <code>responseXML</code> will contain
 the root element of the response and methods like <code>getElementById</code> will work on
 it as expected.</p>
-
 <p>After getting the <code>#mainContent</code> element in both the visible
 document and the newly loaded one, switching them out is just a call to
 <code>replaceWith</code>.</p>
-
 <p>If Internet Explorer support is not a concern to you, you could consider using
 <a href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API">Fetch</a> instead of
 XMLHttpRequest.</p>
-
 <h2 id="update-the-back-stack">Update the back stack</h2>
-
 <p>At this point, the site works and you can freely browse without interrupting
 media playback, but the back and forward buttons don&rsquo;t do what you&rsquo;d expect them
 to. The <a href="https://developer.mozilla.org/en-US/docs/Web/API/History_API">History
 API</a> allows
 JavaScript to modify the back stack to enable the back and forward buttons to
 work in a single page site.</p>
-
 <p>First, check if the history API is available. I did this check in the click
 handler before overriding its behavior:</p>
-
-<pre><code class="language-javascript">// History API needed to make sure back and forward still work
-if (history === null)
-  return;
-</code></pre>
-
-<p>Further down, the click handler also calls <code>pushState</code> after displaying the new
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#75715e">// History API needed to make sure back and forward still work
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">history</span> <span style="color:#f92672">===</span> <span style="color:#66d9ef">null</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">return</span>;
+</span></span></code></pre></div><p>Further down, the click handler also calls <code>pushState</code> after displaying the new
 page to add it to the history and change the shown URL:</p>
-
-<pre><code class="language-javascript">history.pushState(null /*stateObj*/, &quot;&quot; /*title*/, newUrl);
-</code></pre>
-
-<p>Finally, the <code>onpopstate</code> handler is called when the back button is clicked.
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#a6e22e">history</span>.<span style="color:#a6e22e">pushState</span>(<span style="color:#66d9ef">null</span> <span style="color:#75715e">/*stateObj*/</span>, <span style="color:#e6db74">&#34;&#34;</span> <span style="color:#75715e">/*title*/</span>, <span style="color:#a6e22e">newUrl</span>);
+</span></span></code></pre></div><p>Finally, the <code>onpopstate</code> handler is called when the back button is clicked.
 When this happens, the page needs to reload the content from that URL.</p>
-
-<pre><code class="language-javascript">window.onpopstate = function(event) {
-  loadPage(window.location);
-}
-</code></pre>
-
-<p>I could probably save bandwidth that will be wasted when the same page is loaded
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span>window.<span style="color:#a6e22e">onpopstate</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">event</span>) {
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">loadPage</span>(window.<span style="color:#a6e22e">location</span>);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>I could probably save bandwidth that will be wasted when the same page is loaded
 more than once by caching the content.</p>
-
 <h1 id="saying-no-to-jquery">Saying no to jQuery</h1>
-
 <p>I originally avoided jQuery for this prototype as a learning exercise, but in
 hindsight using it would not have helped much.</p>
-
 <p>In my case, jQuery could have helped by providing a better place to register the
 click handler, simplifying the AJAX call, and slightly shortening the call to
 locate the target element. Working around these isn&rsquo;t that annoying and isn&rsquo;t
 worth the 32 KB of bandwidth it takes to load jQuery.</p>
-
 <p>Maybe your new site doesn&rsquo;t need jQuery either. See <a href="http://youmightnotneedjquery.com/">You Might Not Need
 jQuery</a> and <a href="https://blog.garstasio.com/you-dont-need-jquery/why-not/">You Don&rsquo;t Need
 jQuery</a> for more.</p>
@@ -317,18 +268,11 @@ jQuery</a> for more.</p>
         <div class="article-toc" >
             <h3>Contents</h3>
             <nav id="TableOfContents">
-<ul>
-<li><a href="#using-hugo-for-a-podcast-site">Using Hugo for a podcast site</a></li>
-<li><a href="#pardon-the-dust">Pardon the dust</a></li>
-<li><a href="#writing-a-hugo-theme">Writing a Hugo theme</a></li>
-<li><a href="#loading-pages-asynchronously">Loading pages asynchronously</a>
-<ul>
-<li><a href="#override-the-link-click-action">Override the link click action</a></li>
-<li><a href="#retrieve-and-display-the-new-content">Retrieve and display the new content</a></li>
-<li><a href="#update-the-back-stack">Update the back stack</a></li>
-</ul></li>
-<li><a href="#saying-no-to-jquery">Saying no to jQuery</a></li>
-</ul>
+  <ul>
+    <li><a href="#override-the-link-click-action">Override the link click action</a></li>
+    <li><a href="#retrieve-and-display-the-new-content">Retrieve and display the new content</a></li>
+    <li><a href="#update-the-back-stack">Update the back stack</a></li>
+  </ul>
 </nav>
         </div>
         
@@ -340,22 +284,6 @@ jQuery</a> for more.</p>
         
     </div>
     
-        <nav id="article-nav">
-    
-    <a href="/post/older-posts/" id="article-nav-newer" class="article-nav-link-wrap">
-        <div class="article-nav-title"><span>&lt;</span>&nbsp;
-            Older posts
-        </div>
-    </a>
-    
-    
-    <a href="/post/opencv-stereo-camera/" id="article-nav-older" class="article-nav-link-wrap">
-        <div class="article-nav-title">Calculating a depth map from a stereo camera with OpenCV&nbsp;<span>&gt;</span></div>
-    </a>
-    
-</nav>
-
-    
 </article>
 
         
@@ -363,8 +291,9 @@ jQuery</a> for more.</p>
     <footer id="footer">
     <div class="outer">
         <div id="footer-info" class="inner">
-            &copy; 2018 Albert Armea&nbsp;
-            Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> with theme <a href="https://github.com/carsonip/hugo-theme-minos">Minos</a>
+            &copy; 2022 Albert Armea
+            <br />
+            Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> with theme <a href="https://github.com/carsonip/hugo-theme-minos" target="_blank">Minos</a>
         </div>
     </div>
     

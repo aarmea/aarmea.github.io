@@ -1,70 +1,38 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
-  
-  <url>
-    <loc>https://albertarmea.com/post/bt-auto-connect/</loc>
-    <lastmod>2018-03-26T02:41:36-07:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://albertarmea.com/post/alexa-tree/</loc>
-    <lastmod>2018-01-17T00:02:13+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://albertarmea.com/post/opencv-stereo-camera/</loc>
-    <lastmod>2017-10-01T20:49:33-07:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://albertarmea.com/post/async-load-hugo/</loc>
-    <lastmod>2017-08-30T23:39:16-07:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://albertarmea.com/post/older-posts/</loc>
-    <lastmod>2017-08-01T21:25:28-07:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://albertarmea.com/page/about/</loc>
-  </url>
-  
   <url>
     <loc>https://albertarmea.com/</loc>
     <lastmod>2018-03-26T02:41:36-07:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://albertarmea.com/aside/alexa-tree-teardown/</loc>
-  </url>
-  
-  <url>
-    <loc>https://albertarmea.com/aside/</loc>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://albertarmea.com/categories/</loc>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://albertarmea.com/page/</loc>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
+    <loc>https://albertarmea.com/post/bt-auto-connect/</loc>
+    <lastmod>2018-03-26T02:41:36-07:00</lastmod>
+  </url><url>
     <loc>https://albertarmea.com/post/</loc>
     <lastmod>2018-03-26T02:41:36-07:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
+    <loc>https://albertarmea.com/post/alexa-tree/</loc>
+    <lastmod>2018-01-17T00:02:13+00:00</lastmod>
+  </url><url>
+    <loc>https://albertarmea.com/post/opencv-stereo-camera/</loc>
+    <lastmod>2017-10-01T20:49:33-07:00</lastmod>
+  </url><url>
+    <loc>https://albertarmea.com/post/async-load-hugo/</loc>
+    <lastmod>2017-08-30T23:39:16-07:00</lastmod>
+  </url><url>
+    <loc>https://albertarmea.com/post/older-posts/</loc>
+    <lastmod>2017-08-01T21:25:28-07:00</lastmod>
+  </url><url>
+    <loc>https://albertarmea.com/page/about/</loc>
+  </url><url>
+    <loc>https://albertarmea.com/aside/alexa-tree-teardown/</loc>
+  </url><url>
+    <loc>https://albertarmea.com/aside/</loc>
+  </url><url>
+    <loc>https://albertarmea.com/categories/</loc>
+  </url><url>
+    <loc>https://albertarmea.com/page/</loc>
+  </url><url>
     <loc>https://albertarmea.com/tags/</loc>
-    <priority>0</priority>
   </url>
-  
 </urlset>
