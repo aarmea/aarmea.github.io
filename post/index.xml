@@ -13,7 +13,7 @@
       <pubDate>Mon, 26 Mar 2018 02:41:36 -0700</pubDate>
       
       <guid>https://albertarmea.com/post/bt-auto-connect/</guid>
-      <description>&lt;video autoplay loop muted class=&#34;playpause-with-visibility&#34;&gt;
+      <description>&lt;video autoplay playsinline loop muted class=&#34;playpause-with-visibility&#34;&gt;
     &lt;!--
       `ffmpeg -t 0:00:12 -i noise-demo-2018-03-24_15.55.55.mkv -r 10 noise-demo_%05d.png`
       Manually remove bad frames
@@ -66,7 +66,7 @@ download my code &lt;a href=&#34;https://gist.github.com/aarmea/629e59ac7b640a60
 &lt;a href=&#34;https://github.com/aarmea/mfw-singlepage/tree/e17c04d/&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
 
 
-  &lt;video autoplay loop muted class=&#34;playpause-with-visibility&#34;&gt;
+  &lt;video autoplay playsinline loop muted class=&#34;playpause-with-visibility&#34;&gt;
     &lt;source src=&#34;https://albertarmea.com/post/async-load-hugo/main.webm&#34; type=&#34;video/webm&#34;&gt;
     &lt;source src=&#34;https://albertarmea.com/post/async-load-hugo/main.mp4&#34; type=&#34;video/mp4&#34;&gt;
   &lt;/video&gt;</description>
