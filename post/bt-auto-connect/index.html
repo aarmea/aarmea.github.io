@@ -25,7 +25,7 @@
     <link rel="stylesheet" href="https://albertarmea.com/css/style.css">
     
 
-    <meta name="generator" content="Hugo 0.101.0" />
+    <meta name="generator" content="Hugo 0.111.1">
 </head>
 
 
@@ -79,7 +79,7 @@
 
 <p>I implemented a way to automatically create Bluetooth Classic sockets between two nearby Android devices running the same app. This method works continuously in the background without wakelocks, and it does not require pairing, root, or any user interaction.</p>
 <p>The video<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup> is of two physical phones, in this case my Moto G4 Play (left) and original Google Pixel (right), automatically connecting and syncing. The G4 is in airplane mode with Bluetooth on. These phones didn&rsquo;t start paired and never became paired. Neither phone is rooted.</p>
-<h1 id="motivation">Motivation</h1>
+<h2 id="motivation">Motivation</h2>
 <p>A while ago, I was thinking about how fragile the infrastructure supporting long-distance wireless communication is:</p>
 <ul>
 <li>Cell phone towers and the servers implementing chat services are single points of failure.</li>
@@ -89,18 +89,18 @@
 <li>In <a href="https://en.wikipedia.org/wiki/Great_Firewall">China</a>, <a href="https://en.wikipedia.org/wiki/Human_rights_in_North_Korea#Civil_liberties">North Korea</a>, <a href="https://www.afp.com/en/news/826/turkey-gives-watchdog-power-block-internet-broadcasts-doc-12z0r61">Turkey</a>, and anywhere else that freedom of speech is not respected, existing communications infrastructure is monitored and censored.</li>
 </ul>
 <p>With these concerns in mind, I began working on <a href="https://github.com/aarmea/noise">Noise</a>, a peer-to-peer messaging app that works over long distances using <a href="http://issg.cs.duke.edu/epidemic/epidemic.pdf">epidemic routing</a>. Epidemic routing works best when nearby devices are able to connect automatically, which I&rsquo;m able to do by using a Bluetooth LE beacon to bootstrap a Bluetooth Classic socket. In Noise, Bluetooth connection management is handled entirely in the <a href="https://github.com/aarmea/noise/blob/8deb23b18b344e1392b08ae7c2db94b875e398e7/app/src/main/java/com/alternativeinfrastructures/noise/sync/bluetooth/BluetoothSyncService.java"><code>BluetoothSyncService</code> class</a>.</p>
-<h1 id="discovery-using-bluetooth-le">Discovery using Bluetooth LE</h1>
+<h2 id="discovery-using-bluetooth-le">Discovery using Bluetooth LE</h2>
 <p>Like the name implies, Bluetooth Low Energy is a standard designed to reduce the power needed to transfer certain types of data. It does this using a broadcast model, where central devices listen for beacons from peripherals<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>. Android Lollipop and higher support BLE in both the <a href="https://developer.android.com/guide/topics/connectivity/bluetooth-le.html">central</a> and <a href="https://source.android.com/devices/bluetooth/ble_advertising">peripheral</a> roles<sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup>. By constantly advertising and scanning for a predefined beacon, an app can locate nearby running instances of itself.</p>
 <p>Because BLE advertisements are limited to 31 bytes, <a href="https://github.com/aarmea/noise/blob/8deb23b18b344e1392b08ae7c2db94b875e398e7/app/src/main/java/com/alternativeinfrastructures/noise/sync/bluetooth/BluetoothSyncService.java#L97">Noise&rsquo;s beacon</a> consists of exactly one service UUID, which is 16 bytes long:</p>
 <pre tabindex="0"><code class="language-nohighlight" data-lang="nohighlight">5ac825f4-6084-42a6-0000-XXXXXXXXXXXX
 [Noise UUID half ] [--] [MAC addr. ]
 </code></pre><p>For the service UUID, I randomly generated a UUID and ignored its second half. The first half identifies that this advertisement is for Noise and the second half contains this device&rsquo;s Bluetooth MAC address. The 15 leftover bytes in the beacon plus the 2 unused bytes in the UUID leaves 17 bytes that can be used later, such as for a subset of the message vector used in epidemic routing.</p>
 <p>Noise <a href="https://github.com/aarmea/noise/blob/8deb23b18b344e1392b08ae7c2db94b875e398e7/app/src/main/java/com/alternativeinfrastructures/noise/sync/bluetooth/BluetoothSyncService.java#L366">retrieves <code>BluetoothLeAdvertiser</code> and <code>BluetoothLeScanner</code></a> from the <code>BluetoothAdapter</code> to simultaneously <a href="https://github.com/aarmea/noise/blob/8deb23b18b344e1392b08ae7c2db94b875e398e7/app/src/main/java/com/alternativeinfrastructures/noise/sync/bluetooth/BluetoothSyncService.java#L191">start the beacon and listen for it</a>. A crucial benefit of using BLE for discovery is that both advertising and scanning occur directly on the radio. To save power, <a href="http://www.davidgyoungtech.com/2017/08/07/beacon-detection-with-android-8">the phone can sleep while this happens</a><sup id="fnref:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup> &ndash; Android will wake the app if it finds a nearby device.</p>
-<h1 id="making-the-connection">Making the connection</h1>
+<h2 id="making-the-connection">Making the connection</h2>
 <p>Android provides <a href="https://developer.android.com/reference/android/bluetooth/BluetoothAdapter.html#listenUsingInsecureRfcommWithServiceRecord(java.lang.String,%20java.util.UUID)"><code>listenUsingInsecureRfcommWithServiceRecord</code></a> and <a href="https://developer.android.com/reference/android/bluetooth/BluetoothDevice.html#createInsecureRfcommSocketToServiceRecord(java.util.UUID)"><code>createInsecureRfcommSocketToServiceRecord</code></a> to create unauthenticated connections without pairing as long as both the server and client agree on a UUID. For simplicity, I also used the beacon&rsquo;s service UUID to facilitate the connection.</p>
 <p>After setting up BLE, Noise <a href="https://github.com/aarmea/noise/blob/8deb23b18b344e1392b08ae7c2db94b875e398e7/app/src/main/java/com/alternativeinfrastructures/noise/sync/bluetooth/BluetoothSyncService.java#L268">listens for Bluetooth Classic connections in a separate thread</a> so it can continue in the background. The other (&ldquo;client&rdquo;) end makes these connections <a href="https://github.com/aarmea/noise/blob/8deb23b18b344e1392b08ae7c2db94b875e398e7/app/src/main/java/com/alternativeinfrastructures/noise/sync/bluetooth/BluetoothSyncService.java#L211">in the BLE scan callback</a> using the MAC address from service UUID rather than the default one from the beacon. This is needed because the address that Android automatically includes on the beacon is a temporary one that cannot be used to create a Bluetooth Classic socket.</p>
 <p>After these steps, each device has a socket connection to the other, and sync can proceed as defined by epidemic routing.</p>
-<h1 id="mac-address-whack-a-mole">MAC address whack-a-mole</h1>
+<h2 id="mac-address-whack-a-mole">MAC address whack-a-mole</h2>
 <p>Android provides a <a href="https://developer.android.com/reference/android/bluetooth/BluetoothAdapter.html#getAddress()"><code>getAddress()</code></a> on the <code>BluetoothAdapter</code> that originally retrieved the Bluetooth adapter&rsquo;s physical MAC address. However, Google has been making this more and more difficult:</p>
 <ul>
 <li>Pre-Marshmallow: <code>getAddress()</code> works fine</li>
@@ -109,7 +109,7 @@
 </ul>
 <p>I recognize that Google is trying to improve privacy with this move &ndash; in advertising, the MAC address is used to track users between device resets. Additionally, because the MAC address is included in the beacon, if an attacker manages to correlate an address to a person, that attacker can then determine if that person is nearby.</p>
 <p>Unfortunately, as far as I know this is the most accessible way to create sockets between two Android phones, so this hack will have to stay. Suggestions are welcome.</p>
-<h1 id="permissions">Permissions</h1>
+<h2 id="permissions">Permissions</h2>
 <p>As expected, this requires the <code>BLUETOOTH</code> and <code>BLUETOOTH_ADMIN</code> permissions. On Marshmallow and up, starting a BLE scan requires the <code>ACCESS_COARSE_LOCATION</code> permission (presumably because an app can determine where it is if a unique beacon is nearby). <a href="https://github.com/aarmea/noise/blob/c15aa06b4a19cdc41b805c4b85b6c5a733bf9c2b/app/src/main/AndroidManifest.xml">Noise&rsquo;s AndroidManifest.xml</a> also has <code>LOCAL_MAC_ADDRESS</code> in the unlikely event that it is installed as a system app.</p>
 <div class="footnotes" role="doc-endnotes">
 <hr>
@@ -137,7 +137,15 @@
         
         <div class="article-toc" >
             <h3>Contents</h3>
-            <nav id="TableOfContents"></nav>
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#motivation">Motivation</a></li>
+    <li><a href="#discovery-using-bluetooth-le">Discovery using Bluetooth LE</a></li>
+    <li><a href="#making-the-connection">Making the connection</a></li>
+    <li><a href="#mac-address-whack-a-mole">MAC address whack-a-mole</a></li>
+    <li><a href="#permissions">Permissions</a></li>
+  </ul>
+</nav>
         </div>
         
         
@@ -155,7 +163,7 @@
     <footer id="footer">
     <div class="outer">
         <div id="footer-info" class="inner">
-            &copy; 2022 Albert Armea
+            &copy; 2023 Albert Armea
             <br />
             Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> with theme <a href="https://github.com/carsonip/hugo-theme-minos" target="_blank">Minos</a>
         </div>

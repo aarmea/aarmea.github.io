@@ -25,7 +25,7 @@
     <link rel="stylesheet" href="https://albertarmea.com/css/style.css">
     
 
-    <meta name="generator" content="Hugo 0.101.0" />
+    <meta name="generator" content="Hugo 0.111.1">
 </head>
 
 
@@ -91,12 +91,12 @@ Fortunately, this was relatively easy &ndash; aside from the short section of fa
 I had to cut and two small blobs of hot glue used for strain relief, all of the
 components were held in place with screws.</p>
 <p><a href="/aside/alexa-tree-teardown">See here for a full teardown.</a></p>
-<h1 id="building-new-hardware">Building new hardware</h1>
+<h2 id="building-new-hardware">Building new hardware</h2>
 <p>Once I had the tree&rsquo;s electronics enclosure out, I could start picking parts and
 building hardware to replace its original circuits.</p>
 <!-- raw HTML omitted -->
 <p><img src="/post/alexa-tree/assembly.jpg" alt="Tree&amp;rsquo;s electronics assembly after removal"></p>
-<h2 id="choosing-parts">Choosing parts</h2>
+<h3 id="choosing-parts">Choosing parts</h3>
 <p>I had two main constraints for parts: they had to fit inside the enclosure for
 neatness, and I needed to be able to buy the parts in person to finish it on
 time for Christmas. While this meant that all of the Raspberry Pi HATs were out
@@ -126,7 +126,7 @@ AA batteries for power, but common DC-DC boost circuits like the
 <a href="https://www.adafruit.com/product/14">MintyBoost</a> only support up to 1A.</li>
 <li><a href="https://vetco.net/products/kapton-tape-18mm-wide-x-30-meters-long">Kapton tape</a> for insulation and mounting.</li>
 </ul>
-<h2 id="prototyping-on-a-breadboard">Prototyping on a breadboard</h2>
+<h3 id="prototyping-on-a-breadboard">Prototyping on a breadboard</h3>
 <p>With the parts picked out, I needed to test the components on a breadboard.
 First, I removed the plastic case from the audio adapter using a spudger and
 soldered wires to the headphone and microphone contacts to make it more
@@ -151,7 +151,7 @@ pin (pictured above as loose yellow wires connected to of the motor controllers)
 and a 3.3V supply. With the motor running, the current was on the order of
 microamps, which the Pi is able to drive without issues. Refer to the Raspberry
 Pi GPIO <a href="https://pinout.xyz/">pinout</a> when choosing pins.</p>
-<h2 id="final-assembly">Final assembly</h2>
+<h3 id="final-assembly">Final assembly</h3>
 <p>Since I planned to make only one of these trees, I soldered the two circuits
 directly to a piece of perfboard. While this meant I didn&rsquo;t have to design and
 etch a printed circuit board, that might have been preferable: manually routing
@@ -186,8 +186,8 @@ make sure that the SD card slot is facing the bottom.)</p>
 power input. Then I wrote down the GPIO pins the motors, button, and LEDs were
 connected to, and re-assembly was just the disassembly in reverse. I drilled a
 small hole in the battery cover for the USB cable before screwing it back on.</p>
-<h1 id="setting-up-alexa">Setting up Alexa</h1>
-<h2 id="raspbian-and-access-via-local-network">Raspbian and access via local network</h2>
+<h2 id="setting-up-alexa">Setting up Alexa</h2>
+<h3 id="raspbian-and-access-via-local-network">Raspbian and access via local network</h3>
 <p>The Raspberry Pi is stuck inside the tree with no way to display anything, so a
 graphical interface would just be bloat. As a result, I used the <a href="https://www.raspberrypi.org/downloads/raspbian/">Raspbian
 Stretch Lite</a> image to start with. Download and install the image
@@ -242,7 +242,7 @@ SSH.</li>
 <li>Set up <a href="https://wiki.debian.org/UnattendedUpgrades">automatic updates</a> via the <code>unattended-upgrades</code> and
 <code>apt-listchanges</code> packages.</li>
 </ul>
-<h2 id="alexapi-for-alexa">AlexaPi for Alexa</h2>
+<h3 id="alexapi-for-alexa">AlexaPi for Alexa</h3>
 <p>I decided to use <a href="https://github.com/alexa-pi/AlexaPi">AlexaPi</a> to actually call the Alexa Voice Service
 instead of <a href="https://github.com/alexa/alexa-avs-sample-app">Amazon&rsquo;s reference app</a> because AlexaPi lets you
 choose a wakeword engine, supports GPIO pins for triggers and status lights, and
@@ -338,7 +338,7 @@ direction and the mouth should open for all of Alexa&rsquo;s response.</p>
   </div>
 
 
-<h2 id="moving-the-mouth-naturally">Moving the mouth naturally</h2>
+<h3 id="moving-the-mouth-naturally">Moving the mouth naturally</h3>
 <p>AlexaPi does not support animatronic mouth movements out of the box, so I
 researched how similar projects achieved mouth movements:</p>
 <ul>
@@ -395,15 +395,20 @@ natural mouth movements.</p>
             <h3>Contents</h3>
             <nav id="TableOfContents">
   <ul>
-    <li><a href="#choosing-parts">Choosing parts</a></li>
-    <li><a href="#prototyping-on-a-breadboard">Prototyping on a breadboard</a></li>
-    <li><a href="#final-assembly">Final assembly</a></li>
-  </ul>
-
-  <ul>
-    <li><a href="#raspbian-and-access-via-local-network">Raspbian and access via local network</a></li>
-    <li><a href="#alexapi-for-alexa">AlexaPi for Alexa</a></li>
-    <li><a href="#moving-the-mouth-naturally">Moving the mouth naturally</a></li>
+    <li><a href="#building-new-hardware">Building new hardware</a>
+      <ul>
+        <li><a href="#choosing-parts">Choosing parts</a></li>
+        <li><a href="#prototyping-on-a-breadboard">Prototyping on a breadboard</a></li>
+        <li><a href="#final-assembly">Final assembly</a></li>
+      </ul>
+    </li>
+    <li><a href="#setting-up-alexa">Setting up Alexa</a>
+      <ul>
+        <li><a href="#raspbian-and-access-via-local-network">Raspbian and access via local network</a></li>
+        <li><a href="#alexapi-for-alexa">AlexaPi for Alexa</a></li>
+        <li><a href="#moving-the-mouth-naturally">Moving the mouth naturally</a></li>
+      </ul>
+    </li>
   </ul>
 </nav>
         </div>
@@ -423,7 +428,7 @@ natural mouth movements.</p>
     <footer id="footer">
     <div class="outer">
         <div id="footer-info" class="inner">
-            &copy; 2022 Albert Armea
+            &copy; 2023 Albert Armea
             <br />
             Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> with theme <a href="https://github.com/carsonip/hugo-theme-minos" target="_blank">Minos</a>
         </div>

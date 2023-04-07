@@ -25,7 +25,7 @@
     <link rel="stylesheet" href="https://albertarmea.com/css/style.css">
     
 
-    <meta name="generator" content="Hugo 0.101.0" />
+    <meta name="generator" content="Hugo 0.111.1">
 </head>
 
 
@@ -77,7 +77,7 @@
   </video>
 
 
-<h1 id="using-hugo-for-a-podcast-site">Using Hugo for a podcast site</h1>
+<h2 id="using-hugo-for-a-podcast-site">Using Hugo for a podcast site</h2>
 <p>A few weeks ago, one of my friends asked me to help with the website for a
 podcast he was starting. Two of our requirements were that it needed to be a
 static site, mostly to save on hosting costs, and that it must have seamless
@@ -99,11 +99,11 @@ available to search engines or other users that disable JavaScript.</p>
 the podcast, click around in the site. This will not stop playback &ndash; internal
 links load asynchronously and external links load in a new tab. With JavaScript
 disabled, you will at least be able to read the text content of the site.</p>
-<h1 id="pardon-the-dust">Pardon the dust</h1>
+<h2 id="pardon-the-dust">Pardon the dust</h2>
 <p>The code here is the <em>absolute minimum</em> needed to implement this functionality,
 so I&rsquo;m intentionally ignoring some best practices: there&rsquo;s no CSS at all and the
 JavaScript is defined inline, among others.</p>
-<h1 id="writing-a-hugo-theme">Writing a Hugo theme</h1>
+<h2 id="writing-a-hugo-theme">Writing a Hugo theme</h2>
 <p><a href="https://gohugo.io/themes/creating/">Hugo&rsquo;s documentation on creating a theme</a>
 tells you to run <code>hugo new theme [name]</code>, which is supposed to generate a
 scaffold of your new theme. I needed a place to define a base container template
@@ -149,10 +149,10 @@ Default layouts can be overridden on a per-section basis in <code>layouts/[secti
 <p>When writing the theme, I also referenced the source of the <a href="https://comfusion.github.io/after-dark/">After
 Dark</a> and
 <a href="https://github.com/yihui/hugo-xmin">hugo-xmin</a> themes as examples.</p>
-<h1 id="loading-pages-asynchronously">Loading pages asynchronously</h1>
+<h2 id="loading-pages-asynchronously">Loading pages asynchronously</h2>
 <p>Loading the site&rsquo;s pages is done in a few steps: override the link action,
 retrieve and display the content, and update the back stack and displayed URL.</p>
-<h2 id="override-the-link-click-action">Override the link click action</h2>
+<h3 id="override-the-link-click-action">Override the link click action</h3>
 <p>The easiest way to do this is to register a click handler on the <code>&lt;body&gt;</code> and do
 nothing if the click event was not on a link:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span>window.<span style="color:#a6e22e">onload</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>() {
@@ -189,7 +189,7 @@ this functionality doesn&rsquo;t depend on images and other content loading, but
 <a href="http://mdn.beonex.com/en/DOM/window.onload.html"><code>window.onload</code> waits for those
 anyway</a>. Alternately, I could
 have just given the click handler a name and set it directly on the <code>&lt;body onclick=&quot;...&quot;&gt;</code>.</p>
-<h2 id="retrieve-and-display-the-new-content">Retrieve and display the new content</h2>
+<h3 id="retrieve-and-display-the-new-content">Retrieve and display the new content</h3>
 <p><code>loadPage()</code> does the AJAX call needed to get the new content. Using a raw
 <a href="https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest"><code>XMLHttpRequest</code></a>
 isn&rsquo;t exactly a one-liner like <a href="https://api.jquery.com/jQuery.get/">jQuery&rsquo;s
@@ -229,7 +229,7 @@ document and the newly loaded one, switching them out is just a call to
 <p>If Internet Explorer support is not a concern to you, you could consider using
 <a href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API">Fetch</a> instead of
 XMLHttpRequest.</p>
-<h2 id="update-the-back-stack">Update the back stack</h2>
+<h3 id="update-the-back-stack">Update the back stack</h3>
 <p>At this point, the site works and you can freely browse without interrupting
 media playback, but the back and forward buttons don&rsquo;t do what you&rsquo;d expect them
 to. The <a href="https://developer.mozilla.org/en-US/docs/Web/API/History_API">History
@@ -251,7 +251,7 @@ When this happens, the page needs to reload the content from that URL.</p>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>I could probably save bandwidth that will be wasted when the same page is loaded
 more than once by caching the content.</p>
-<h1 id="saying-no-to-jquery">Saying no to jQuery</h1>
+<h2 id="saying-no-to-jquery">Saying no to jQuery</h2>
 <p>I originally avoided jQuery for this prototype as a learning exercise, but in
 hindsight using it would not have helped much.</p>
 <p>In my case, jQuery could have helped by providing a better place to register the
@@ -269,9 +269,17 @@ jQuery</a> for more.</p>
             <h3>Contents</h3>
             <nav id="TableOfContents">
   <ul>
-    <li><a href="#override-the-link-click-action">Override the link click action</a></li>
-    <li><a href="#retrieve-and-display-the-new-content">Retrieve and display the new content</a></li>
-    <li><a href="#update-the-back-stack">Update the back stack</a></li>
+    <li><a href="#using-hugo-for-a-podcast-site">Using Hugo for a podcast site</a></li>
+    <li><a href="#pardon-the-dust">Pardon the dust</a></li>
+    <li><a href="#writing-a-hugo-theme">Writing a Hugo theme</a></li>
+    <li><a href="#loading-pages-asynchronously">Loading pages asynchronously</a>
+      <ul>
+        <li><a href="#override-the-link-click-action">Override the link click action</a></li>
+        <li><a href="#retrieve-and-display-the-new-content">Retrieve and display the new content</a></li>
+        <li><a href="#update-the-back-stack">Update the back stack</a></li>
+      </ul>
+    </li>
+    <li><a href="#saying-no-to-jquery">Saying no to jQuery</a></li>
   </ul>
 </nav>
         </div>
@@ -291,7 +299,7 @@ jQuery</a> for more.</p>
     <footer id="footer">
     <div class="outer">
         <div id="footer-info" class="inner">
-            &copy; 2022 Albert Armea
+            &copy; 2023 Albert Armea
             <br />
             Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> with theme <a href="https://github.com/carsonip/hugo-theme-minos" target="_blank">Minos</a>
         </div>

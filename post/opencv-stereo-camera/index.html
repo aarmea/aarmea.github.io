@@ -25,7 +25,7 @@
     <link rel="stylesheet" href="https://albertarmea.com/css/style.css">
     
 
-    <meta name="generator" content="Hugo 0.101.0" />
+    <meta name="generator" content="Hugo 0.111.1">
 </head>
 
 
@@ -80,8 +80,8 @@ critical reviews were about out-of-sync images and being unable to use both
 cameras at a good resolution simultaneously. I suspected these issues were the
 result of a lack of documentation and user error, so I risked the purchase
 anyway.</p>
-<h1 id="getting-synchronized-full-resolution-images">Getting synchronized, full-resolution images</h1>
-<h2 id="getting-an-image">Getting an image</h2>
+<h2 id="getting-synchronized-full-resolution-images">Getting synchronized, full-resolution images</h2>
+<h3 id="getting-an-image">Getting an image</h3>
 <p>After receiving the camera, my first step was to get images of any kind from it.
 First, I installed Python, OpenCV, and the OpenCV-Python bindings, then I
 slightly modified this <a href="https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_gui/py_video_display/py_video_display.html">OpenCV tutorial</a> so that it used
@@ -122,7 +122,7 @@ calls to <a href="http://docs.opencv.org/3.3.0/d8/dfe/classcv_1_1VideoCapture.ht
 use one VideoCapture instance and pass in whether you want the 0th or 1st camera
 in retrieve(). You might need to change the values passed into VideoCapture to 1
 and 2 if camera 0 is your computer&rsquo;s built in webcam.</p>
-<h2 id="increasing-the-resolution">Increasing the resolution</h2>
+<h3 id="increasing-the-resolution">Increasing the resolution</h3>
 <p>By default, the ELP cameras output video at 640x480. I didn&rsquo;t think I would be
 able to get a good depth map from that resolution, so my next step was to try to
 increase it to their claimed maximum of 1280x720.</p>
@@ -185,12 +185,12 @@ installing everything again, the MJPG encoding worked and I was able to get
 video from both cameras at 1280x720 simultaneously (which is large enough that
 both don&rsquo;t fit on my screen):</p>
 <p><img src="/post/opencv-stereo-camera/stereo-full.jpg" alt="Full-resolution stereo view of potted plants"></p>
-<h1 id="calibrating-the-cameras">Calibrating the cameras</h1>
+<h2 id="calibrating-the-cameras">Calibrating the cameras</h2>
 <p>Stereo correspondence algorithms rely on undistorted and rectified source
 images. Specifically, straight lines in the real world need to be straight in
 the images, and the images need to be aligned with each other. Out of the box,
 the ELP camera has plenty of distortion which I fixed by calibrating it.</p>
-<h2 id="capturing-calibration-data">Capturing calibration data</h2>
+<h3 id="capturing-calibration-data">Capturing calibration data</h3>
 <p>Before calibrating, I needed to get some calibration data. I printed out a
 chessboard, taped it to a clipboard, and added this to the code above to save
 the frames for later use (full capture code <a href="https://gist.github.com/aarmea/629e59ac7b640a60340145809b1c9013#file-1-capture-py">here</a>):</p>
@@ -210,7 +210,7 @@ the frames for later use (full capture code <a href="https://gist.github.com/aar
 </span></span></code></pre></div><p>The chessboard I used is available <a href="/post/opencv-stereo-camera/chessboard.html">here</a>. You might need to
 enable background colors while printing. After printing, take note of how many
 corners are visible.</p>
-<h2 id="calibrating-the-cameras-individually">Calibrating the cameras individually</h2>
+<h3 id="calibrating-the-cameras-individually">Calibrating the cameras individually</h3>
 <p>OpenCV has a <a href="http://docs.opencv.org/3.0-beta/doc/py_tutorials/py_calib3d/py_calibration/py_calibration.html#calibration">pretty good tutorial</a> on calibrating a
 single camera. The gist of it is to extract the locations of the corners from
 these chessboard pictures with
@@ -259,7 +259,7 @@ cropping. I ended up taking new chessboard images with the crop applied during
 capture so I could avoid bringing the chessboard out of frame. After
 recalibrating, I was able to get good results with straight lines:</p>
 <p><img src="/post/opencv-stereo-camera/calibrated-good.jpg" alt="Well-calibrated image of potted plants"></p>
-<h2 id="calibrating-the-cameras-together-and-rectifying">Calibrating the cameras together and rectifying</h2>
+<h3 id="calibrating-the-cameras-together-and-rectifying">Calibrating the cameras together and rectifying</h3>
 <p>The next step to correct a stereo pair is to determine the rotation and vertical
 offset between the two cameras using
 <a href="http://docs.opencv.org/3.3.0/d9/d0c/group__calib3d.html#ga246253dcc6de2e0376c599e7d692303a">stereoCalibrate()</a>:</p>
@@ -294,7 +294,7 @@ to correct the stereo pair:</p>
 </span></span></code></pre></div><p>The calibration for my ELP camera is available <a href="/post/opencv-stereo-camera/calibration.npz">here</a>, but you
 may need to recalibrate anyway because of manufacturing irregularities that
 result in camera differences.</p>
-<h1 id="calculating-a-depth-map">Calculating a depth map</h1>
+<h2 id="calculating-a-depth-map">Calculating a depth map</h2>
 <p>Now that the cameras are fully calibrated and rectified, they can be used to
 generate depth maps. First, load the calibration:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>calibration <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>load(sys<span style="color:#f92672">.</span>argv[<span style="color:#ae81ff">1</span>], allow_pickle<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>)
@@ -343,14 +343,20 @@ set, I got much better results:</p>
             <h3>Contents</h3>
             <nav id="TableOfContents">
   <ul>
-    <li><a href="#getting-an-image">Getting an image</a></li>
-    <li><a href="#increasing-the-resolution">Increasing the resolution</a></li>
-  </ul>
-
-  <ul>
-    <li><a href="#capturing-calibration-data">Capturing calibration data</a></li>
-    <li><a href="#calibrating-the-cameras-individually">Calibrating the cameras individually</a></li>
-    <li><a href="#calibrating-the-cameras-together-and-rectifying">Calibrating the cameras together and rectifying</a></li>
+    <li><a href="#getting-synchronized-full-resolution-images">Getting synchronized, full-resolution images</a>
+      <ul>
+        <li><a href="#getting-an-image">Getting an image</a></li>
+        <li><a href="#increasing-the-resolution">Increasing the resolution</a></li>
+      </ul>
+    </li>
+    <li><a href="#calibrating-the-cameras">Calibrating the cameras</a>
+      <ul>
+        <li><a href="#capturing-calibration-data">Capturing calibration data</a></li>
+        <li><a href="#calibrating-the-cameras-individually">Calibrating the cameras individually</a></li>
+        <li><a href="#calibrating-the-cameras-together-and-rectifying">Calibrating the cameras together and rectifying</a></li>
+      </ul>
+    </li>
+    <li><a href="#calculating-a-depth-map">Calculating a depth map</a></li>
   </ul>
 </nav>
         </div>
@@ -370,7 +376,7 @@ set, I got much better results:</p>
     <footer id="footer">
     <div class="outer">
         <div id="footer-info" class="inner">
-            &copy; 2022 Albert Armea
+            &copy; 2023 Albert Armea
             <br />
             Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> with theme <a href="https://github.com/carsonip/hugo-theme-minos" target="_blank">Minos</a>
         </div>
