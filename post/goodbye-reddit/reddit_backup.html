@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<head>
+    <title>Power Delete Suite backup viewer</title>
+    <link rel="stylesheet" href="github-markdown.css">
+    <style>
+        html {
+            display: table;
+            margin: auto;
+        }
+        body {
+            max-width: 800px;
+            vertical-align: middle;
+            padding: 0 25px;
+        }
+    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body class="markdown-body">
+    <header>
+        <h1>Power Delete Suite backup viewer</h1>
+        <p>This is a backup of content exported by <a href="https://github.com/aarmea/PowerDeleteSuite/">a modified version of Power Delete Suite</a>.</p>
+    </header>
+    <section id="loading-text">
+        <p>Loading...</p>
+    </section>
+    <section id="error" hidden>
+        <p id="error-title">Could not load content</p>
+        <pre id="error-message"></pre>
+    </section>
+    <section id="reddit-content" hidden>
+        <noscript>
+            <p>This viewer requires Javascript to load content.</p>
+        </noscript>
+        <p>Title: <span id="reddit-title"></span></p>
+        <p>Originally published by /u/<span id="reddit-username"></span> on <time id="reddit-time"></time>.</p>
+        <p>Score at time of retrieval: <span id="reddit-score"></span></p>
+        <p>Content:</p>
+        <blockquote>
+            <div id="reddit-body"></div>
+        </blockquote>
+    </section>
+    <footer>
+        <p>This viewer is available <a href="https://github.com/aarmea/pds-backup-viewer">on GitHub</a> under the terms of <a href="https://unlicense.org">the Unlicense</a>.</p>
+    </footer>
+    <script src="marked.min.js"></script>
+    <script src="papaparse.min.js"></script>
+    <script src="purify.min.js"></script>
+    <script>
+function getBackupUrl(user) {
+    return "reddit_backup_" + user + ".csv";
+}
+
+const params = new URLSearchParams(window.location.search);
+const user = params.get("user");
+const permalink = params.get("permalink");
+
+const loadingElement = document.getElementById("loading-text");
+const contentElement = document.getElementById("reddit-content");
+
+const titleElement = document.getElementById("reddit-title");
+const usernameElement = document.getElementById("reddit-username");
+const timeElement = document.getElementById("reddit-time");
+const scoreElement = document.getElementById("reddit-score");
+const bodyElement = document.getElementById("reddit-body");
+
+const decoder = new TextDecoder();
+
+function showError(error) {
+    const errorElement = document.getElementById("error");
+    const errorTitleElement = document.getElementById("error-title");
+    const errorMessageElement = document.getElementById("error-message");
+
+    if (error) {
+        errorTitleElement.textContent = error.name;
+        errorMessageElement.textContent = error.message;
+    }
+
+    loadingElement.hidden = true;
+    errorElement.hidden = false;
+}
+
+function base64ToStr(b64str) {
+    const binString = atob(b64str);
+    const bytes = Uint8Array.from(binString, (m) => m.codePointAt(0));
+    return decoder.decode(bytes);
+}
+
+Papa.parse(getBackupUrl(user), {
+    header: true,
+    download: true,
+    step: function(row, parser) {
+        if (permalink == row.data.Permalink) {
+            titleElement.textContent = row.data.Title;
+            usernameElement.textContent = user;
+            scoreElement.textContent = row.data.Score;
+            bodyElement.innerHTML = DOMPurify.sanitize(marked.parse(base64ToStr(row.data.Body)));
+
+            date = new Date(row.data["Timestamp UTC"] * 1000);
+            timeElement.innerHTML = date.toLocaleString();
+            timeElement.setAttribute("datetime", date.toISOString());
+
+            loadingElement.hidden = true;
+            contentElement.hidden = false;
+            parser.abort();
+        }
+    },
+    error: function(error) {
+        showError(error);
+    },
+    complete: function(result) {
+        if (!result.meta.aborted) {
+            showError({name: "Error", message: "Not found in archive"});
+        }
+    }
+});
+    </script>
+</body>
