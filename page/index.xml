@@ -5,18 +5,14 @@
     <link>https://albertarmea.com/page/</link>
     <description>Recent content in Pages on Albert Armea</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language><atom:link href="https://albertarmea.com/page/index.xml" rel="self" type="application/rss+xml" />
+    <language>en-us</language>
+    <atom:link href="https://albertarmea.com/page/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>About</title>
       <link>https://albertarmea.com/page/about/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
       <guid>https://albertarmea.com/page/about/</guid>
-      <description>I make things &amp;ndash; usually software, but sometimes also hardware, videos, and music. On this site, I document the process of making these things and interesting (and occasionally unrelated) adventures that happen along the way.
-You can send me an email or find me on:
-GitHub Thingiverse YouTube Reddit Keybase LinkedIn My resume can be found here.
-Site This site is generated with Hugo using a modified version of the Minos theme and hosted by GitHub Pages.</description>
+      <description>I make things &amp;ndash; usually software, but sometimes also hardware, videos, and music. On this site, I document the process of making these things and interesting (and occasionally unrelated) adventures that happen along the way.&#xA;You can send me an email or find me on:&#xA;GitHub Thingiverse YouTube Reddit Keybase LinkedIn My resume can be found here.&#xA;Site This site is generated with Hugo using a modified version of the Minos theme and hosted by GitHub Pages.</description>
     </item>
-    
   </channel>
 </rss>

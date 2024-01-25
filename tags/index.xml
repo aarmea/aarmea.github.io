@@ -5,6 +5,7 @@
     <link>https://albertarmea.com/tags/</link>
     <description>Recent content in Tags on Albert Armea</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language><atom:link href="https://albertarmea.com/tags/index.xml" rel="self" type="application/rss+xml" />
+    <language>en-us</language>
+    <atom:link href="https://albertarmea.com/tags/index.xml" rel="self" type="application/rss+xml" />
   </channel>
 </rss>

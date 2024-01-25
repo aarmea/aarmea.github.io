@@ -6,90 +6,49 @@
     <description>Recent content in Posts on Albert Armea</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 06 Apr 2023 02:41:36 -0400</lastBuildDate><atom:link href="https://albertarmea.com/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 06 Apr 2023 02:41:36 -0400</lastBuildDate>
+    <atom:link href="https://albertarmea.com/post/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>It took me a year to install new thermostats</title>
       <link>https://albertarmea.com/post/nest-thermostat/</link>
       <pubDate>Thu, 06 Apr 2023 02:41:36 -0400</pubDate>
-      
       <guid>https://albertarmea.com/post/nest-thermostat/</guid>
-      <description>&lt;p&gt;&lt;img src=&#34;https://albertarmea.com/post/nest-thermostat/cover.jpg&#34; alt=&#34;Nest thermostat and zone controller&#34;&gt;&lt;/p&gt;
-&lt;p&gt;I had been thinking about upgrading the thermostats for a while, and I honestly thought it would be simple. I was very wrong: I ended up having to replace the zone controller and a power transformer as well, and it took me over a year to finish the job.&lt;/p&gt;</description>
+      <description>&lt;p&gt;&lt;img src=&#34;https://albertarmea.com/post/nest-thermostat/cover.jpg&#34; alt=&#34;Nest thermostat and zone controller&#34;&gt;&lt;/p&gt;&#xA;&lt;p&gt;I had been thinking about upgrading the thermostats for a while, and I honestly thought it would be simple. I was very wrong: I ended up having to replace the zone controller and a power transformer as well, and it took me over a year to finish the job.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Creating Bluetooth sockets on Android without pairing</title>
       <link>https://albertarmea.com/post/bt-auto-connect/</link>
       <pubDate>Mon, 26 Mar 2018 02:41:36 -0700</pubDate>
-      
       <guid>https://albertarmea.com/post/bt-auto-connect/</guid>
-      <description>&lt;video autoplay playsinline loop muted class=&#34;playpause-with-visibility&#34;&gt;
-    &lt;!--
-      `ffmpeg -t 0:00:12 -i noise-demo-2018-03-24_15.55.55.mkv -r 10 noise-demo_%05d.png`
-      Manually remove bad frames
-      `ffmpeg -framerate 10 -pattern_type glob -i &#34;noise-demo_*.png&#34; -pix_fmt yuv420p -c:v libx264 -crf 32 -b:v 0 -an noise-demo-web.mp4`
-    --&gt;
-    &lt;source src=&#34;https://albertarmea.com/post/bt-auto-connect/noise-demo-web.mp4&#34;&gt;
-    &lt;!--No webm because it&#39;s always noticeably worse at this filesize?--&gt;
-  &lt;/video&gt;
-
-
-&lt;p&gt;I implemented a way to automatically create Bluetooth Classic sockets between two nearby Android devices running the same app. This method works continuously in the background without wakelocks, and it does not require pairing, root, or any user interaction.&lt;/p&gt;</description>
+      <description>&lt;video autoplay playsinline loop muted class=&#34;playpause-with-visibility&#34;&gt;&#xA;    &lt;!--&#xA;      `ffmpeg -t 0:00:12 -i noise-demo-2018-03-24_15.55.55.mkv -r 10 noise-demo_%05d.png`&#xA;      Manually remove bad frames&#xA;      `ffmpeg -framerate 10 -pattern_type glob -i &#34;noise-demo_*.png&#34; -pix_fmt yuv420p -c:v libx264 -crf 32 -b:v 0 -an noise-demo-web.mp4`&#xA;    --&gt;&#xA;    &lt;source src=&#34;https://albertarmea.com/post/bt-auto-connect/noise-demo-web.mp4&#34;&gt;&#xA;    &lt;!--No webm because it&#39;s always noticeably worse at this filesize?--&gt;&#xA;  &lt;/video&gt;&#xA;&#xA;&#xA;&lt;p&gt;I implemented a way to automatically create Bluetooth Classic sockets between two nearby Android devices running the same app. This method works continuously in the background without wakelocks, and it does not require pairing, root, or any user interaction.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Making animatronics useful with Alexa</title>
       <link>https://albertarmea.com/post/alexa-tree/</link>
       <pubDate>Wed, 17 Jan 2018 00:02:13 +0000</pubDate>
-      
       <guid>https://albertarmea.com/post/alexa-tree/</guid>
-      <description>&lt;div style=&#34;position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;&#34;&gt;
-  &lt;iframe src=&#34;https://www.youtube.com/embed/Yi8ShLDlquk&#34; style=&#34;position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;&#34; allowfullscreen title=&#34;YouTube Video&#34;&gt;&lt;/iframe&gt;
-&lt;/div&gt;
-
-&lt;p&gt;I was looking for a white elephant gift, and the silliness of this animatronic
-Christmas tree was too hard to pass up. The humor wore off after the third time
-I heard it sing, so I decided to make it useful by adding Alexa.&lt;/p&gt;</description>
+      <description>&lt;div style=&#34;position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;&#34;&gt;&#xA;  &lt;iframe src=&#34;https://www.youtube.com/embed/Yi8ShLDlquk&#34; style=&#34;position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;&#34; allowfullscreen title=&#34;YouTube Video&#34;&gt;&lt;/iframe&gt;&#xA;&lt;/div&gt;&#xA;&#xA;&lt;p&gt;I was looking for a white elephant gift, and the silliness of this animatronic&#xA;Christmas tree was too hard to pass up. The humor wore off after the third time&#xA;I heard it sing, so I decided to make it useful by adding Alexa.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Calculating a depth map from a stereo camera with OpenCV</title>
       <link>https://albertarmea.com/post/opencv-stereo-camera/</link>
       <pubDate>Sun, 01 Oct 2017 20:49:33 -0700</pubDate>
-      
       <guid>https://albertarmea.com/post/opencv-stereo-camera/</guid>
-      <description>&lt;p&gt;&lt;img src=&#34;https://albertarmea.com/post/opencv-stereo-camera/depth-final.jpg&#34; alt=&#34;Potted plants and the corresponding depth map&#34;&gt;&lt;/p&gt;
-&lt;p&gt;I found and ordered &lt;a href=&#34;https://www.amazon.com/ELP-Megapixel-Camera-Module-Biometric/dp/B00VG32EC2//ref=as_li_ss_tl?ie=UTF8&amp;amp;linkCode=ll1&amp;amp;tag=albertarmeabl-20&amp;amp;linkId=bc5b4947de2850d5a0cec76d2c6a9760&#34;&gt;ELP&amp;rsquo;s stereo camera&lt;/a&gt; to calculate depth
-maps with OpenCV and see what I could do with them. It turns out that just
-getting a decent depth map was much more involved than I expected. Read and
-download my code &lt;a href=&#34;https://gist.github.com/aarmea/629e59ac7b640a60340145809b1c9013&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;</description>
+      <description>&lt;p&gt;&lt;img src=&#34;https://albertarmea.com/post/opencv-stereo-camera/depth-final.jpg&#34; alt=&#34;Potted plants and the corresponding depth map&#34;&gt;&lt;/p&gt;&#xA;&lt;p&gt;I found and ordered &lt;a href=&#34;https://www.amazon.com/ELP-Megapixel-Camera-Module-Biometric/dp/B00VG32EC2//ref=as_li_ss_tl?ie=UTF8&amp;amp;linkCode=ll1&amp;amp;tag=albertarmeabl-20&amp;amp;linkId=bc5b4947de2850d5a0cec76d2c6a9760&#34;&gt;ELP&amp;rsquo;s stereo camera&lt;/a&gt; to calculate depth&#xA;maps with OpenCV and see what I could do with them. It turns out that just&#xA;getting a decent depth map was much more involved than I expected. Read and&#xA;download my code &lt;a href=&#34;https://gist.github.com/aarmea/629e59ac7b640a60340145809b1c9013&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Asynchronously loading pages in a Hugo site</title>
       <link>https://albertarmea.com/post/async-load-hugo/</link>
       <pubDate>Wed, 30 Aug 2017 23:39:16 -0700</pubDate>
-      
       <guid>https://albertarmea.com/post/async-load-hugo/</guid>
-      <description>&lt;p&gt;I wrote a Hugo &amp;ldquo;theme&amp;rdquo; that loads its pages asynchronously. Play with it
-&lt;a href=&#34;https://aarmea.github.io/mfw-singlepage/&#34;&gt;here&lt;/a&gt; or read the code
-&lt;a href=&#34;https://github.com/aarmea/mfw-singlepage/tree/e17c04d/&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
-
-
-  &lt;video autoplay playsinline loop muted class=&#34;playpause-with-visibility&#34;&gt;
-    &lt;source src=&#34;https://albertarmea.com/post/async-load-hugo/main.webm&#34; type=&#34;video/webm&#34;&gt;
-    &lt;source src=&#34;https://albertarmea.com/post/async-load-hugo/main.mp4&#34; type=&#34;video/mp4&#34;&gt;
-  &lt;/video&gt;</description>
+      <description>&lt;p&gt;I wrote a Hugo &amp;ldquo;theme&amp;rdquo; that loads its pages asynchronously. Play with it&#xA;&lt;a href=&#34;https://aarmea.github.io/mfw-singlepage/&#34;&gt;here&lt;/a&gt; or read the code&#xA;&lt;a href=&#34;https://github.com/aarmea/mfw-singlepage/tree/e17c04d/&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;&#xA;&#xA;&#xA;  &lt;video autoplay playsinline loop muted class=&#34;playpause-with-visibility&#34;&gt;&#xA;    &lt;source src=&#34;https://albertarmea.com/post/async-load-hugo/main.webm&#34; type=&#34;video/webm&#34;&gt;&#xA;    &lt;source src=&#34;https://albertarmea.com/post/async-load-hugo/main.mp4&#34; type=&#34;video/mp4&#34;&gt;&#xA;  &lt;/video&gt;</description>
     </item>
-    
     <item>
       <title>Older posts</title>
       <link>https://albertarmea.com/post/older-posts/</link>
       <pubDate>Tue, 01 Aug 2017 21:25:28 -0700</pubDate>
-      
       <guid>https://albertarmea.com/post/older-posts/</guid>
       <description>&lt;p&gt;My older posts are still available at &lt;a href=&#34;http://blog.albertarmea.com/&#34;&gt;http://blog.albertarmea.com/&lt;/a&gt;.&lt;/p&gt;</description>
     </item>
-    
   </channel>
 </rss>
