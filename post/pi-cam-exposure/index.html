@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Synchronizing hardware with Raspberry Pi camera exposures | Albert Armea</title>
+
+    <meta charset="utf-8">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    
+    
+    
+
+        <meta property="og:title" content="Synchronizing hardware with Raspberry Pi camera exposures" />
+    <meta property="og:description" content="" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en" />
+    <meta property="og:url" content="https://albertarmea.com/post/pi-cam-exposure/" />
+    
+
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    <link href="https://albertarmea.com/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+    <link href="https://albertarmea.com/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="https://albertarmea.com/css/style.css">
+    
+
+    <meta name="generator" content="Hugo 0.121.1">
+</head>
+
+
+<body>
+<div id="container">
+    <header id="header">
+    <div id="header-outer" class="outer">
+        <div id="header-inner" class="inner">
+            <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+            <a id="logo" class="logo-text" href="https://albertarmea.com/">Albert Armea</a>
+            <nav id="main-nav">
+                
+                <a class="main-nav-link" href="/page/about">About</a>
+                
+                <a class="main-nav-link" href="https://github.com/aarmea">GitHub</a>
+                
+            </nav>
+            <nav id="sub-nav">
+                <div id="search-form-wrap">
+                </div>
+            </nav>
+        </div>
+    </div>
+</header>
+
+    <section id="main" class="outer">
+        <article class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        <header class="article-header">
+            <h1 class="article-title" itemprop="name">Synchronizing hardware with Raspberry Pi camera exposures</h1>
+        </header>
+        
+        <div class="article-meta">
+            
+            
+            
+            
+        </div>
+        <div class="article-entry" itemprop="articleBody">
+            <p><img src="/post/pi-cam-exposure/454-ui-screenshot.jpg" alt="Screenshot of 454 TIRF UI, showing controls, protocol, and microscope image. Microscope image contains DNA clusters."></p>
+<p>Many scientific and artistic camera applications require precise exposure timing, such as when capturing the stroboscopic effect, performing <a href="/post/opencv-stereo-camera">stereo depth mapping</a>, or <a href="https://454.bio/docs/build/">imaging with TIRF microscopy</a><sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>. This can be achieved even with the <a href="https://amzn.to/3U7w4Vs">Raspberry Pi HQ camera</a>, though it took some work and reverse engineering to get there.</p>
+<p>The Raspberry Pi HQ camera is a good option for tinkering as it supports C- and CS-mount optics, but the existing libraries make it difficult to quickly and accurately synchronize external hardware with camera captures. During my time at <a href="https://454.bio">454 Bio</a>, we built an open-source and cost-effective TIRF microscope that worked around this, and used it to develop DNA sequencing chemistry. To achieve this, we needed to synchronize the TIRF LED flashes with the camera exposures.</p>
+<h2 id="assumptions-about-the-camera">Assumptions about the camera</h2>
+<p>The <a href="https://www.raspberrypi.com/documentation/computers/camera_software.html">Raspberry Pi documentation</a> suggests that the camera can act like a still camera, particularly with commands like <code>rpicam-jpeg</code> and <code>rpicam-still</code>. This slightly stretches the truth: while I was researching all of the available Pi camera implementations, the following from the <a href="https://picamera.readthedocs.io/en/release-1.13/fov.html#misconception-2"><code>picamera</code> documentation</a> stood out:</p>
+<blockquote>
+<p>The notion that the camera is effectively idle until we tell it to capture a frame is also misleading. Don’t think of the camera as a still image camera. Think of it as a video camera. Specifically one that, as soon as it is initialized, is constantly streaming frames (or rather rows of frames) down the ribbon cable to the Pi for processing.</p>
+</blockquote>
+<p>The camera can take several seconds to initialize with a given set of parameters (exposure time, brightness, contrast, etc.). After that, it captures and discards a few frames internally as it fills its buffer and waits for automatic gain and white balance to converge.</p>
+<p>In our application, once the sequencing reaction is started by heating up the slide, there is no way to stop or slow it down. As a result, we need to be able to capture images as quickly as possible.</p>
+<p>My conclusion from these competing requirements was that the user would need to pick a set of parameters prior to starting a sequencing run and never change it.</p>
+<h2 id="camera-as-a-trigger-source">Camera as a trigger source</h2>
+<p>Raspberry Pi released support for the sync signals <a href="https://forums.raspberrypi.com/viewtopic.php?t=281913">in a firmware update in 2020</a>. In their announcement, the closest thing to proper still captures that they were willing to document was &ldquo;trigger mode sync&rdquo;:</p>
+<blockquote>
+<p>It is possible to synchronise the readouts of two or more imx477 sensors by wiring their <strong>XVS</strong> test points together. These devices can be on separate Pi boards, or can be on a Compute Module (CM) board with two sensors attached.</p>
+<p>One camera must act as a trigger <em>source</em>, and the others act as trigger <em>sinks</em>.</p>
+</blockquote>
+<p>This wasn&rsquo;t quite what we were hoping for, but simply knowing when the camera started its &ldquo;exposure&rdquo; is enough to be able to synchronize flashes with the sensor.</p>
+<h2 id="electronics">Electronics</h2>
+<p>This isn&rsquo;t quite plug and play as XVS still needs to be connected to GPIO on the Pi.</p>
+<p>To do this, first solder wires onto the GND and XVS pads on the camera module:<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup></p>
+<p><img src="/post/pi-cam-exposure/pi-hq-xvs-pads.jpg" alt="Location of the XVS and GND pads on the official Raspberry Pi HQ camera module"></p>
+<p>XVS is at a 1.8v logic level, and the Pi&rsquo;s GPIO pins are at a 3.3v logic level. You can use an off-the-shelf level shifter, like <a href="https://www.sparkfun.com/products/12009">this one from SparkFun</a><sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup> along with some resistors to create a voltage divider for the 1.8v reference voltage on the LV pin.<sup id="fnref1:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup></p>
+<p><img src="/post/pi-cam-exposure/pi-hq-xvs-shifter.jpg" alt="Level shifter circuit between XVS at 1.8v and Pi GPIO at 3.3v"></p>
+<p>As pictured, the camera&rsquo;s XVS and GND go to LV3 and a common GND. HV goes to one of the 3.3v pins on the Pi and HV3 goes to GPIO pin 6.</p>
+<h2 id="configuration">Configuration</h2>
+<p>Then, the Pi will need to be configured to use XVS as an output (i.e. a trigger source) by appending <code>imx477.trigger_mode=1</code> to your <code>/boot/cmdline.txt</code>.</p>
+<p>On a typical Pi, a complete <code>/boot/cmdline.txt</code> contains something along the lines of the following:</p>
+<pre tabindex="0"><code>console=serial0,115200 console=tty1 root=PARTUUID=6699147f-02 rootfstype=ext4 fsck.repair=yes rootwait quiet splash plymouth.ignore-serial-consoles imx477.trigger_mode=1
+</code></pre><p>Then reboot, and whenever the camera is initialized, you should be able to detect pulses on GPIO pin 6 whenever the sensor starts or stops an exposure.</p>
+<h2 id="xvs-signal-timing-and-raspberry-pi-based-interrupts">XVS signal timing and Raspberry Pi-based interrupts</h2>
+<p>I naively tried to read the XVS signal a few ways &mdash; first by polling, and later with <a href="https://abyz.me.uk/rpi/pigpio/pdif2.html#callback">pigpiod&rsquo;s <code>callback</code> function</a>. Nothing seemed to work, so I connected XVS to a <a href="https://amzn.to/47XwwZE">Saleae logic analyzer</a> to try to figure out what was going on. After <em>lots</em> of zooming in, I could see the pulse but it was only 30 ns long:</p>
+<p><img src="/post/pi-cam-exposure/xvs-input-duration.png" alt="Timing diagram showing XVS pulse is only 30 ns long"></p>
+<p>pigpiod&rsquo;s documentation made it very clear that it was only capable of detecting pulses 1 µs or longer:</p>
+<blockquote>
+<p>The GPIO are sampled at a rate set when the pigpio daemon is started (default 5 us).</p>
+<p>The number of samples per second is given in the following table.</p>
+</blockquote>
+<blockquote>
+<pre tabindex="0"><code>              samples
+              per sec
+
+         1  1,000,000
+         2    500,000
+sample   4    250,000
+rate     5    200,000
+(us)     8    125,000
+        10    100,000
+</code></pre></blockquote>
+<p>I pored through the Raspberry Pi documentation to see if there was a way to increase the pulse duration, but the one method I found (setting <code>imx477_vsync_width</code> in <code>/boot/config.txt</code>) only worked on 32-bit Raspbian and we were not willing to downgrade for a variety of reasons.</p>
+<p>Because the pulse is so short, the most sensible approach is to treat the Pi like a microcontroller and use a hardware interrupt.<sup id="fnref:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup> On Raspbian Buster, the only way that Linux exposes these is with the deprecated sysfs GPIO interface, which pigpio (but not pigpio<strong>d</strong>) exposes via the <a href="https://abyz.me.uk/rpi/pigpio/cif.html#gpioSetISRFunc"><code>gpioSetISRFunc</code> function</a>.</p>
+<p>First, make sure that pigpio is initialized, set the pin as an input, and register the callback:<sup id="fnref:5"><a href="#fn:5" class="footnote-ref" role="doc-noteref">5</a></sup></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;array&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;system_error&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;pigpio.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">constexpr</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span> XVS_PIN <span style="color:#f92672">=</span> <span style="color:#ae81ff">6</span>;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">constexpr</span> <span style="color:#66d9ef">static</span> std<span style="color:#f92672">::</span>array<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span>, <span style="color:#ae81ff">4</span><span style="color:#f92672">&gt;</span> LED_PINS {<span style="color:#ae81ff">16</span>, <span style="color:#ae81ff">17</span>, <span style="color:#ae81ff">20</span>, <span style="color:#ae81ff">21</span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">xvs_callback</span>(<span style="color:#66d9ef">int</span> user_gpio, <span style="color:#66d9ef">int</span> level, <span style="color:#66d9ef">uint32_t</span> tick);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Optional, but helpful:
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// Converts rc-style errors into exceptions.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">inline</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">CHECK_RC</span>(<span style="color:#66d9ef">int</span> rc, <span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>string <span style="color:#f92672">&amp;</span>hint)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (rc <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">0</span>)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">throw</span> std<span style="color:#f92672">::</span>system_error(std<span style="color:#f92672">::</span>make_error_code(<span style="color:#66d9ef">static_cast</span><span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>errc<span style="color:#f92672">&gt;</span>(rc)), hint);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>(<span style="color:#66d9ef">int</span> argc, <span style="color:#66d9ef">char</span> <span style="color:#f92672">**</span>argv)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    CHECK_RC(gpioInitialise(), <span style="color:#e6db74">&#34;Could not initialize GPIO&#34;</span>);
+</span></span><span style="display:flex;"><span>    CHECK_RC(gpioSetMode(XVS_PIN, PI_INPUT), <span style="color:#e6db74">&#34;Could not set up XVS input&#34;</span>);
+</span></span><span style="display:flex;"><span>    CHECK_RC(gpioSetISRFunc(XVS_PIN, FALLING_EDGE, <span style="color:#ae81ff">0</span> <span style="color:#75715e">/*timeout*/</span>, xvs_callback), <span style="color:#e6db74">&#34;Could not set up shutter callback&#34;</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span> pin : LED_PINS)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        CHECK_RC(gpioSetMode(pin, PI_OUTPUT), <span style="color:#e6db74">&#34;Could not set up LED pin&#34;</span>);
+</span></span><span style="display:flex;"><span>        CHECK_RC(gpioWrite(pin, false), <span style="color:#e6db74">&#34;Could not turn off LED&#34;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Callbacks are only valid as long as the process stays alive.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    CHECK_RC(gpioSleep(PI_TIME_RELATIVE, <span style="color:#ae81ff">10</span>, <span style="color:#ae81ff">0</span>), <span style="color:#e6db74">&#34;&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Then define a callback appropriate for your application:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#66d9ef">inline</span> <span style="color:#66d9ef">static</span> size_t g_pulse_index <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">xvs_callback</span>(<span style="color:#66d9ef">int</span> user_gpio, <span style="color:#66d9ef">int</span> level, <span style="color:#66d9ef">uint32_t</span> tick)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">switch</span> (g_pulse_index)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">case</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">// Red
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>            CHECK_RC(gpioWrite(LED_PINS[<span style="color:#ae81ff">0</span>], true), <span style="color:#e6db74">&#34;&#34;</span>);
+</span></span><span style="display:flex;"><span>            CHECK_RC(gpioDelay(<span style="color:#ae81ff">50000</span>), <span style="color:#e6db74">&#34;&#34;</span>);
+</span></span><span style="display:flex;"><span>            CHECK_RC(gpioWrite(LED_PINS[<span style="color:#ae81ff">0</span>], false), <span style="color:#e6db74">&#34;&#34;</span>);
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">break</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">case</span> <span style="color:#ae81ff">4</span><span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">// Orange
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>            CHECK_RC(gpioWrite(LED_PINS[<span style="color:#ae81ff">1</span>], true), <span style="color:#e6db74">&#34;&#34;</span>);
+</span></span><span style="display:flex;"><span>            CHECK_RC(gpioDelay(<span style="color:#ae81ff">50000</span>), <span style="color:#e6db74">&#34;&#34;</span>);
+</span></span><span style="display:flex;"><span>            CHECK_RC(gpioWrite(LED_PINS[<span style="color:#ae81ff">1</span>], false), <span style="color:#e6db74">&#34;&#34;</span>);
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">break</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">case</span> <span style="color:#ae81ff">6</span><span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">// Green
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>            CHECK_RC(gpioWrite(LED_PINS[<span style="color:#ae81ff">2</span>], true), <span style="color:#e6db74">&#34;&#34;</span>);
+</span></span><span style="display:flex;"><span>            CHECK_RC(gpioDelay(<span style="color:#ae81ff">150000</span>), <span style="color:#e6db74">&#34;&#34;</span>);
+</span></span><span style="display:flex;"><span>            CHECK_RC(gpioWrite(LED_PINS[<span style="color:#ae81ff">2</span>], false), <span style="color:#e6db74">&#34;&#34;</span>);
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">break</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">case</span> <span style="color:#ae81ff">8</span><span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">// Blue
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>            CHECK_RC(gpioWrite(LED_PINS[<span style="color:#ae81ff">3</span>], true), <span style="color:#e6db74">&#34;&#34;</span>);
+</span></span><span style="display:flex;"><span>            CHECK_RC(gpioDelay(<span style="color:#ae81ff">150000</span>), <span style="color:#e6db74">&#34;&#34;</span>);
+</span></span><span style="display:flex;"><span>            CHECK_RC(gpioWrite(LED_PINS[<span style="color:#ae81ff">3</span>], false), <span style="color:#e6db74">&#34;&#34;</span>);
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">break</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">default</span><span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">break</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">++</span>g_pulse_index;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>With all of this implemented, it was possible to synchronize the TIRF LED flashes with the start of each frame:</p>
+<p><img src="/post/pi-cam-exposure/xvs-input-flash-trace.png" alt="Timing diagram showing tight synchronization between trigger pulse (XVS) and LED flashes"></p>
+<p>454 has since moved to a different software design for the Pi camera, so the closest surviving example of GPIO-based interrupts in 454&rsquo;s code is in the <a href="https://github.com/454bio/tirf-hal/blob/688e623ca565e29e30555f7e5f303c71a65fc83e/camera/pylablib_camera.cpp">pylablib camera controller</a> used for purpose-built microscope cameras. This example expects the camera to be controlled by a different process (perhaps one of the <code>libcamera-apps</code>/<code>rpicam-apps</code> binaries) with an exposure duration of 250ms and has been greatly simplified to highlight the GPIO calls.</p>
+<h2 id="exposure-timing">Exposure timing</h2>
+<p>Most digital camera sensors suffer from some sort of <a href="https://en.wikipedia.org/wiki/Rolling_shutter">rolling shutter</a>, and the Raspberry Pi HQ camera is no exception.  While testing, I noticed that the image was dark at the top, suggesting that the flash started before all of the lines have begun exposing:</p>
+<p><img src="/post/pi-cam-exposure/flash-too-early.jpg" alt="Image of slide with grid only with banding at the top"></p>
+<p>I conducted an experiment where I artificially added a delay between when our code received the XVS pulse and when it turned on the LED, and varied it between 0 and 100 ms. If the pulse was too late, the image would be dark at the bottom:</p>
+<p><img src="/post/pi-cam-exposure/flash-too-late.jpg" alt="Image of slide with grid only with banding at the bottom"></p>
+<p>The &ldquo;correct&rdquo; value seemed to be 85 ms, which uniformly illuminated the entire slide:</p>
+<p><img src="/post/pi-cam-exposure/flash-on-time.jpg" alt="Image of slide with grid only uniformly illuminated"></p>
+<h2 id="gotchas">Gotchas</h2>
+<p>If your application is for scientific data collection, as was the case with 454&rsquo;s DNA sequencer, you should disable camera features like automatic gain control and white balance. These will make the data unreliable as the pixel intensity values cannot be compared between images. To do this, edit the <code>config.txt</code> used by <code>libcamera-*</code>/<code>rpicam-*</code><sup id="fnref:6"><a href="#fn:6" class="footnote-ref" role="doc-noteref">6</a></sup> so that all of its values are fixed:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-ini" data-lang="ini"><span style="display:flex;"><span><span style="color:#a6e22e">brightness</span><span style="color:#f92672">=</span><span style="color:#e6db74">0.0</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">contrast</span><span style="color:#f92672">=</span><span style="color:#e6db74">0.0</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">saturation</span><span style="color:#f92672">=</span><span style="color:#e6db74">1.0</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">sharpness</span><span style="color:#f92672">=</span><span style="color:#e6db74">1.0</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">awb</span><span style="color:#f92672">=</span><span style="color:#e6db74">custom</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">awbgains</span><span style="color:#f92672">=</span><span style="color:#e6db74">0,0</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">exposure</span><span style="color:#f92672">=</span><span style="color:#e6db74">normal</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">shutter</span><span style="color:#f92672">=</span><span style="color:#e6db74">250000</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">ev</span><span style="color:#f92672">=</span><span style="color:#e6db74">0</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">denoise</span><span style="color:#f92672">=</span><span style="color:#e6db74">off</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">gain</span><span style="color:#f92672">=</span><span style="color:#e6db74">8.0</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">vflip</span><span style="color:#f92672">=</span><span style="color:#e6db74">true</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">hflip</span><span style="color:#f92672">=</span><span style="color:#e6db74">false</span>
+</span></span></code></pre></div><p>Earlier, I wrote:</p>
+<blockquote>
+<p>you should be able to detect pulses on GPIO pin 6 whenever the sensor starts or stops an exposure.</p>
+</blockquote>
+<p>Using this technique, there is no direct way to tell whether the pulse indicates the start or the stop of the exposure. If this program is started before the camera is initialized, you can count the pulses: odd pulses indicate the exposure is starting and even pulses indicate it is stopping.</p>
+<p>It may be instead be easier to have your software act as the <em>source</em> of XVS pulses, rather than as the <em>sink</em>. For this and other reasons, this is the architecture I landed on with 454, and will be discussed in a future article.</p>
+<div class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1">
+<p>Image from <a href="https://454.bio/docs/build/instrument-sw/#introduction">454 Bio documentation</a>, used under the terms of <a href="https://454.bio/docs/contribution-guidelines/">CC BY-SA 4.0</a>.&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2">
+<p>Image and text adapted from <a href="https://454.bio/docs/build/electronics/#pi-hq-camera">454 Bio documentation</a>, used under the terms of <a href="https://454.bio/docs/contribution-guidelines/">CC BY-SA 4.0</a>.&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a>&#160;<a href="#fnref1:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:3">
+<p>I recommend using a bidirectional level shifter to avoid having to redo any wiring if you decide to use XVS as an input, as will be described in a future article.&#160;<a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:4">
+<p>Yes, it may have been easier at this point to just use an Arduino for the interrupt and LED control, but as usual I was convinced that additional hardware <a href="/post/alexa-tree/#moving-the-mouth-naturally">wasn&rsquo;t necessary</a>.&#160;<a href="#fnref:4" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:5">
+<p>Code adapted from <a href="https://github.com/454bio/tirf-hal/blob/688e623ca565e29e30555f7e5f303c71a65fc83e/camera/pylablib_camera.cpp">454 Bio <code>tirf-hal</code></a>, used under the terms of the <a href="https://github.com/454bio/tirf-hal/blob/688e623ca565e29e30555f7e5f303c71a65fc83e/LICENSE.md">AGPL</a>.&#160;<a href="#fnref:5" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:6">
+<p>I modeled 454&rsquo;s <code>tirf-hal</code> camera controller after <code>rpicam-apps</code> so it accepts the same format. The implementation of this can be seen in <a href="https://github.com/454bio/tirf-hal/blob/688e623ca565e29e30555f7e5f303c71a65fc83e/camera/pi_camera.cpp#L27"><code>PiCamera::connect_camera</code></a>.&#160;<a href="#fnref:6" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</div>
+        </div>
+
+        
+        
+        <div class="article-toc" >
+            <h3>Contents</h3>
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#assumptions-about-the-camera">Assumptions about the camera</a></li>
+    <li><a href="#camera-as-a-trigger-source">Camera as a trigger source</a></li>
+    <li><a href="#electronics">Electronics</a></li>
+    <li><a href="#configuration">Configuration</a></li>
+    <li><a href="#xvs-signal-timing-and-raspberry-pi-based-interrupts">XVS signal timing and Raspberry Pi-based interrupts</a></li>
+    <li><a href="#exposure-timing">Exposure timing</a></li>
+    <li><a href="#gotchas">Gotchas</a></li>
+  </ul>
+</nav>
+        </div>
+        
+        
+
+        
+
+
+        
+    </div>
+    
+</article>
+
+        
+    </section>
+    <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            &copy; 2024 Albert Armea
+            <br />
+            Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> with theme <a href="https://github.com/carsonip/hugo-theme-minos" target="_blank">Minos</a>
+        </div>
+    </div>
+    
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/tomorrow-night.min.css" integrity="sha256-2wL88NKUqvJi/ExflDzkzUumjUM73mcK2gBvBBeLvTk=" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js" integrity="sha256-KbfTjB0WZ8vvXngdpJGY3Yp3xKk+tttbqClO11anCIU=" crossorigin="anonymous"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    
+    <script>
+        document.getElementById('main-nav-toggle').addEventListener('click', function () {
+            var header = document.getElementById('header');
+            if (header.classList.contains('mobile-on')) {
+                header.classList.remove('mobile-on');
+            } else {
+                header.classList.add('mobile-on');
+            }
+        });
+
+        
+        
+        (function() {
+            var tolerance = 40; 
+
+            function playPauseVideos() {
+                var elementsToAutoplay = document.getElementsByClassName('playpause-with-visibility');
+                var scrollTop = window.pageYOffset + tolerance;
+                var scrollBottom = window.pageYOffset + window.innerHeight - tolerance;
+
+                for (var i = 0; i < elementsToAutoplay.length; ++i) {
+                    if (elementsToAutoplay[i].tagName !== 'VIDEO')
+                        continue;
+
+                    var video = elementsToAutoplay[i];
+
+                    
+                    if (video.loop) {
+                        video.controls = false;
+                        video.muted = true;
+                    }
+
+                    video.autoplay = false;
+
+                    var videoTop = video.offsetTop;
+                    var videoBottom = video.offsetTop + video.offsetHeight;
+                    if (scrollTop < videoBottom && scrollBottom > videoTop) {
+                        video.play();
+                    } else {
+                        video.pause();
+                    }
+                }
+            }
+
+            window.addEventListener('load', playPauseVideos);
+            window.addEventListener('scroll', playPauseVideos);
+            window.addEventListener('resize', playPauseVideos);
+        })();
+    </script>
+</footer>
+
+</div>
+</body>
+</html>

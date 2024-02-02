@@ -6,8 +6,15 @@
     <description>Recent content on Albert Armea</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 06 Apr 2023 02:41:36 -0400</lastBuildDate>
+    <lastBuildDate>Mon, 29 Jan 2024 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://albertarmea.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Synchronizing hardware with Raspberry Pi camera exposures</title>
+      <link>https://albertarmea.com/post/pi-cam-exposure/</link>
+      <pubDate>Mon, 29 Jan 2024 00:00:00 +0000</pubDate>
+      <guid>https://albertarmea.com/post/pi-cam-exposure/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://albertarmea.com/post/pi-cam-exposure/454-ui-screenshot.jpg&#34; alt=&#34;Screenshot of 454 TIRF UI, showing controls, protocol, and microscope image. Microscope image contains DNA clusters.&#34;&gt;&lt;/p&gt;&#xA;&lt;p&gt;Many scientific and artistic camera applications require precise exposure timing, such as when capturing the stroboscopic effect, performing &lt;a href=&#34;https://albertarmea.com/post/opencv-stereo-camera&#34;&gt;stereo depth mapping&lt;/a&gt;, or &lt;a href=&#34;https://454.bio/docs/build/&#34;&gt;imaging with TIRF microscopy&lt;/a&gt;&lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;. This can be achieved even with the &lt;a href=&#34;https://amzn.to/3U7w4Vs&#34;&gt;Raspberry Pi HQ camera&lt;/a&gt;, though it took some work and reverse engineering to get there.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>It took me a year to install new thermostats</title>
       <link>https://albertarmea.com/post/nest-thermostat/</link>
