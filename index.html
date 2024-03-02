@@ -25,7 +25,7 @@
     <link rel="stylesheet" href="https://albertarmea.com/css/style.css">
     
 
-    <meta name="generator" content="Hugo 0.121.1">
+    <meta name="generator" content="Hugo 0.122.0">
 </head>
 
 <body>
@@ -51,6 +51,86 @@
 </header>
 
     <section id="main" class="outer">
+        
+        <article class="article article-type-post" itemscope itemprop="blogPost">
+            <div class="article-inner">
+                
+                
+                <header class="article-header">
+                    <h1 itemprop="name"><a class="article-title" href="/post/x-compile-pi-arm-mac/">Cross-compiling for Raspberry Pi on an Apple silicon Mac</a></h1>
+                </header>
+                
+                <div class="article-meta">
+                    <a href="/post/x-compile-pi-arm-mac/" class="article-date">
+                        <time datetime='2024-03-02T00:00:00.000&#43;00:00' itemprop="datePublished">2024-03-02</time>
+                    </a>
+                    
+                    
+                    
+                </div>
+                <div class="article-entry" itemprop="articleBody">
+                    <p>
+                        
+                    <p>While developing the <a href="https://454.bio/docs/build/instrument-sw/">device software</a> for <a href="https://454.bio">454 Bio</a>&rsquo;s DNA sequencer, I needed to be able to build <a href="https://github.com/raspberrypi/rpicam-apps">rpicam-apps</a> and our <a href="https://github.com/454bio/tirf-hal">HAL</a>. While I could compile directly on the Pi 4 it was running on, it was quite slow:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>aarmea@raspberrypi:~/Code/tirf-hal/builddir $ meson compile --clean &amp;&amp; time meson compile
+</span></span><span style="display:flex;"><span>Cleaning... 0 files.
+</span></span><span style="display:flex;"><span>[70/70] Linking target apps/capture-service
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>real    4m12.382s
+</span></span><span style="display:flex;"><span>user    14m38.012s
+</span></span><span style="display:flex;"><span>sys     1m8.128s
+</span></span></code></pre></div><p>Instead, I set up my much faster M1 Mac to cross-compile this and our custom code, which is almost 10x faster and allowed me to iterate much more quickly:<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>debian@debian:~/Code/454-hal/builddir$ meson compile --clean &amp;&amp; time meson compile
+</span></span><span style="display:flex;"><span>Cleaning... 0 files.
+</span></span><span style="display:flex;"><span>[70/70] Linking target apps/capture-service
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>real    0m32.847s
+</span></span><span style="display:flex;"><span>user    1m46.109s
+</span></span><span style="display:flex;"><span>sys     0m14.082s
+</span></span></code></pre></div><p>Because the environment is virtualized, it was much easier to set up and integrate Pi-specific libraries than with other cross-compilation toolchains.</p>
+                    </p>
+                    <p class="article-more-link">
+                        <a href="/post/x-compile-pi-arm-mac/">Read More</a>
+                    </p>
+                </div>
+
+                
+            </div>
+        </article>
+        
+        <article class="article article-type-post" itemscope itemprop="blogPost">
+            <div class="article-inner">
+                
+                
+                <header class="article-header">
+                    <h1 itemprop="name"><a class="article-title" href="/post/pi-cam-exposure-2/">Directly triggering Raspberry Pi camera exposures</a></h1>
+                </header>
+                
+                <div class="article-meta">
+                    <a href="/post/pi-cam-exposure-2/" class="article-date">
+                        <time datetime='2024-02-28T00:00:00.000&#43;00:00' itemprop="datePublished">2024-02-28</time>
+                    </a>
+                    
+                    
+                    
+                </div>
+                <div class="article-entry" itemprop="articleBody">
+                    <p>
+                        
+                    <p>TODO:</p>
+<ul>
+<li>Easily understandable demo &ndash; strobe imaging? maybe build the light stick again</li>
+<li>Photo of assembled camera</li>
+</ul>
+                    </p>
+                    <p class="article-more-link">
+                        <a href="/post/pi-cam-exposure-2/">Read More</a>
+                    </p>
+                </div>
+
+                
+            </div>
+        </article>
         
         <article class="article article-type-post" itemscope itemprop="blogPost">
             <div class="article-inner">
@@ -295,6 +375,23 @@ download my code <a href="https://gist.github.com/aarmea/629e59ac7b640a603401458
         
 
         
+
+<nav id="page-nav">
+    
+    
+    
+    <span class="page-number current">1</span>
+    
+    
+    
+    <a href="/page/2/">2</a>
+    
+    
+
+    
+    <a href="/page/2/" rel="next" class="extend next">Next &raquo;</a>
+    
+</nav>
 
 
     </section>

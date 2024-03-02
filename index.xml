@@ -6,8 +6,22 @@
     <description>Recent content on Albert Armea</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 29 Jan 2024 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 02 Mar 2024 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://albertarmea.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Cross-compiling for Raspberry Pi on an Apple silicon Mac</title>
+      <link>https://albertarmea.com/post/x-compile-pi-arm-mac/</link>
+      <pubDate>Sat, 02 Mar 2024 00:00:00 +0000</pubDate>
+      <guid>https://albertarmea.com/post/x-compile-pi-arm-mac/</guid>
+      <description>&lt;p&gt;While developing the &lt;a href=&#34;https://454.bio/docs/build/instrument-sw/&#34;&gt;device software&lt;/a&gt; for &lt;a href=&#34;https://454.bio&#34;&gt;454 Bio&lt;/a&gt;&amp;rsquo;s DNA sequencer, I needed to be able to build &lt;a href=&#34;https://github.com/raspberrypi/rpicam-apps&#34;&gt;rpicam-apps&lt;/a&gt; and our &lt;a href=&#34;https://github.com/454bio/tirf-hal&#34;&gt;HAL&lt;/a&gt;. While I could compile directly on the Pi 4 it was running on, it was quite slow:&lt;/p&gt;&#xA;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-text&#34; data-lang=&#34;text&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;aarmea@raspberrypi:~/Code/tirf-hal/builddir $ meson compile --clean &amp;amp;&amp;amp; time meson compile&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Cleaning... 0 files.&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;[70/70] Linking target apps/capture-service&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;real    4m12.382s&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;user    14m38.012s&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;sys     1m8.128s&#xA;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Instead, I set up my much faster M1 Mac to cross-compile this and our custom code, which is almost 10x faster and allowed me to iterate much more quickly:&lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;&#xA;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-text&#34; data-lang=&#34;text&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;debian@debian:~/Code/454-hal/builddir$ meson compile --clean &amp;amp;&amp;amp; time meson compile&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Cleaning... 0 files.&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;[70/70] Linking target apps/capture-service&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;real    0m32.847s&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;user    1m46.109s&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;sys     0m14.082s&#xA;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Because the environment is virtualized, it was much easier to set up and integrate Pi-specific libraries than with other cross-compilation toolchains.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Directly triggering Raspberry Pi camera exposures</title>
+      <link>https://albertarmea.com/post/pi-cam-exposure-2/</link>
+      <pubDate>Wed, 28 Feb 2024 00:00:00 +0000</pubDate>
+      <guid>https://albertarmea.com/post/pi-cam-exposure-2/</guid>
+      <description>&lt;p&gt;TODO:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;Easily understandable demo &amp;ndash; strobe imaging? maybe build the light stick again&lt;/li&gt;&#xA;&lt;li&gt;Photo of assembled camera&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
+    </item>
     <item>
       <title>Synchronizing hardware with Raspberry Pi camera exposures</title>
       <link>https://albertarmea.com/post/pi-cam-exposure/</link>

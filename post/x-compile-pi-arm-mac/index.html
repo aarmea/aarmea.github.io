@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cross-compiling for Raspberry Pi on an Apple silicon Mac | Albert Armea</title>
+
+    <meta charset="utf-8">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    
+    
+    
+
+        <meta property="og:title" content="Cross-compiling for Raspberry Pi on an Apple silicon Mac" />
+    <meta property="og:description" content="" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en" />
+    <meta property="og:url" content="https://albertarmea.com/post/x-compile-pi-arm-mac/" />
+    
+
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    <link href="https://albertarmea.com/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+    <link href="https://albertarmea.com/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="https://albertarmea.com/css/style.css">
+    
+
+    <meta name="generator" content="Hugo 0.122.0">
+</head>
+
+
+<body>
+<div id="container">
+    <header id="header">
+    <div id="header-outer" class="outer">
+        <div id="header-inner" class="inner">
+            <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+            <a id="logo" class="logo-text" href="https://albertarmea.com/">Albert Armea</a>
+            <nav id="main-nav">
+                
+                <a class="main-nav-link" href="/page/about">About</a>
+                
+                <a class="main-nav-link" href="https://github.com/aarmea">GitHub</a>
+                
+            </nav>
+            <nav id="sub-nav">
+                <div id="search-form-wrap">
+                </div>
+            </nav>
+        </div>
+    </div>
+</header>
+
+    <section id="main" class="outer">
+        <article class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        <header class="article-header">
+            <h1 class="article-title" itemprop="name">Cross-compiling for Raspberry Pi on an Apple silicon Mac</h1>
+        </header>
+        
+        <div class="article-meta">
+            
+            
+            
+            
+        </div>
+        <div class="article-entry" itemprop="articleBody">
+            <p>While developing the <a href="https://454.bio/docs/build/instrument-sw/">device software</a> for <a href="https://454.bio">454 Bio</a>&rsquo;s DNA sequencer, I needed to be able to build <a href="https://github.com/raspberrypi/rpicam-apps">rpicam-apps</a> and our <a href="https://github.com/454bio/tirf-hal">HAL</a>. While I could compile directly on the Pi 4 it was running on, it was quite slow:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>aarmea@raspberrypi:~/Code/tirf-hal/builddir $ meson compile --clean &amp;&amp; time meson compile
+</span></span><span style="display:flex;"><span>Cleaning... 0 files.
+</span></span><span style="display:flex;"><span>[70/70] Linking target apps/capture-service
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>real    4m12.382s
+</span></span><span style="display:flex;"><span>user    14m38.012s
+</span></span><span style="display:flex;"><span>sys     1m8.128s
+</span></span></code></pre></div><p>Instead, I set up my much faster M1 Mac to cross-compile this and our custom code, which is almost 10x faster and allowed me to iterate much more quickly:<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>debian@debian:~/Code/454-hal/builddir$ meson compile --clean &amp;&amp; time meson compile
+</span></span><span style="display:flex;"><span>Cleaning... 0 files.
+</span></span><span style="display:flex;"><span>[70/70] Linking target apps/capture-service
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>real    0m32.847s
+</span></span><span style="display:flex;"><span>user    1m46.109s
+</span></span><span style="display:flex;"><span>sys     0m14.082s
+</span></span></code></pre></div><p>Because the environment is virtualized, it was much easier to set up and integrate Pi-specific libraries than with other cross-compilation toolchains.</p>
+<h2 id="tldr">tl;dr</h2>
+<p>In a nutshell, we&rsquo;ll be doing the following:</p>
+<ol>
+<li><a href="#initial-setup">Create an equivalent <code>aarch64</code> Debian VM</a></li>
+<li><a href="#installing-application-specific-packages">Install application-specific dependencies in it</a>, <a href="#installing-pi-only-packages-in-the-vm">including packages exclusive to Raspbian</a></li>
+<li><a href="#compiling">Compile as usual (but faster)</a></li>
+</ol>
+<h2 id="initial-setup">Initial setup</h2>
+<p>This is possible for a few reasons:</p>
+<ul>
+<li>Raspbian is derived from Debian</li>
+<li>Raspberry Pi 3 and newer and Raspberry Pi Zero 2 and newer use <a href="https://www.raspberrypi.com/news/raspberry-pi-os-64-bit/">64-bit ARM processors</a></li>
+<li>Raspbian is available as a 64-bit build<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup></li>
+<li>Apple silicon processors are also 64-bit ARM</li>
+</ul>
+<p>To get started, first install a virtualization platform on your Mac. I recommend the free and open-source <a href="https://mac.getutm.app/">UTM</a>, which also offers <a href="https://mac.getutm.app/gallery/">prebuilt Debian images</a>.</p>
+<p>After installing UTM, install the version of Debian that corresponds to the version installed on your Pi. The rest of this guide assumes 64-bit Bullseye, but Bookworm should work as well.</p>
+<p>Adjust the VM&rsquo;s settings before booting up. 4 cores with 6 GB of RAM was a good balance on my MacBook Pro with 16 GB of RAM.<sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup></p>
+<p><img src="/post/x-compile-pi-arm-mac/vm-settings.png" alt="VM settings showing 4 cores with 6 GB of RAM"></p>
+<p>Then, boot up the VM and open up the terminal to do some basic housekeeping:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># Initial setup</span>
+</span></span><span style="display:flex;"><span>sudo apt update
+</span></span><span style="display:flex;"><span>sudo apt upgrade
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Convenience packages</span>
+</span></span><span style="display:flex;"><span>sudo apt install htop tmux mosh git build-essential rsync
+</span></span></code></pre></div><h3 id="better-integration-via-remote-access">Better integration via &ldquo;remote&rdquo; access</h3>
+<p>If you&rsquo;re comfortable working inside the VM&rsquo;s GUI, feel free to skip this section. If not, you can access the VM over SSH.</p>
+<p>First, retrieve the VM&rsquo;s IP address on UTM&rsquo;s shared interface:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>debian@debian:~$ ip addr
+</span></span><span style="display:flex;"><span>1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+</span></span><span style="display:flex;"><span>    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+</span></span><span style="display:flex;"><span>    inet 127.0.0.1/8 scope host lo
+</span></span><span style="display:flex;"><span>       valid_lft forever preferred_lft forever
+</span></span><span style="display:flex;"><span>    inet6 ::1/128 scope host 
+</span></span><span style="display:flex;"><span>       valid_lft forever preferred_lft forever
+</span></span><span style="display:flex;"><span>2: enp0s1: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
+</span></span><span style="display:flex;"><span>    link/ether 3c:13:d6:23:10:f5 brd ff:ff:ff:ff:ff:ff
+</span></span><span style="display:flex;"><span>    inet 192.168.64.4/24 brd 192.168.64.255 scope global enp0s1
+</span></span><span style="display:flex;"><span>       valid_lft forever preferred_lft forever
+</span></span><span style="display:flex;"><span>    ...
+</span></span></code></pre></div><p>In my case, the relevant interface is <code>enp0s1</code> and the private IP address is <code>192.168.64.4</code>. This is static and can be entered in to your Mac&rsquo;s SSH config at <code>~/.ssh/config</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>aarmea@Alberts-MacBook-Pro x-compile-pi-arm-mac % cat ~/.ssh/config
+</span></span><span style="display:flex;"><span>Host *
+</span></span><span style="display:flex;"><span>	AddKeysToAgent yes
+</span></span><span style="display:flex;"><span>	UseKeychain yes
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Host pi-vm
+</span></span><span style="display:flex;"><span>	HostName 192.168.64.4
+</span></span><span style="display:flex;"><span>	User debian
+</span></span></code></pre></div><p>Then, use <code>ssh-copy-id pi-vm</code> to use your SSH keys to log into the VM and bypass the password prompt every time.</p>
+<p>With that complete, you can now directly <code>ssh pi-vm</code> and use related tools, like <code>scp</code> and <code>rclone</code>, and even connect to it using Visual Studio Code.</p>
+
+
+  <video autoplay playsinline loop muted class="playpause-with-visibility">
+    <source src="/post/x-compile-pi-arm-mac/vscode-remote.mov">
+  </video>
+
+
+<h2 id="installing-application-specific-packages">Installing application-specific packages</h2>
+<p>I particularly needed to be able to build <code>rpicam-apps</code>, so I then installed the subset of <a href="https://www.raspberrypi.com/documentation/computers/camera_software.html#building-libcamera-and-rpicam-apps">its dependencies</a> that were common to both Debian and Raspbian:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo apt install -y python3-pip
+</span></span><span style="display:flex;"><span>sudo apt install -y libepoxy-dev libjpeg-dev libtiff5-dev
+</span></span><span style="display:flex;"><span>sudo apt install -y qtbase5-dev libqt5core5a libqt5gui5 libqt5widgets5
+</span></span><span style="display:flex;"><span>sudo apt install -y libavcodec-dev libavdevice-dev libavformat-dev libswresample-dev
+</span></span><span style="display:flex;"><span>sudo apt install -y cmake libboost-program-options-dev libdrm-dev libexif-dev
+</span></span><span style="display:flex;"><span>sudo apt install -y libboost-dev
+</span></span><span style="display:flex;"><span>sudo apt install -y libgnutls28-dev openssl libtiff5-dev
+</span></span><span style="display:flex;"><span>sudo apt install -y qtbase5-dev libqt5core5a libqt5gui5 libqt5widgets5
+</span></span><span style="display:flex;"><span>sudo apt install -y meson
+</span></span><span style="display:flex;"><span>sudo apt install -y libglib2.0-dev libgstreamer-plugins-base1.0-dev
+</span></span><span style="display:flex;"><span>sudo apt install -y libpng-dev
+</span></span><span style="display:flex;"><span>sudo pip3 install jinja2
+</span></span><span style="display:flex;"><span>sudo pip3 install pyyaml ply
+</span></span><span style="display:flex;"><span>sudo pip3 install --upgrade meson
+</span></span></code></pre></div><h3 id="installing-pi-only-packages-in-the-vm">Installing Pi-only packages in the VM</h3>
+<p>In my case, 454&rsquo;s HAL requires <code>libcamera-dev</code> and <code>libcamera0</code> to use the camera and <code>libpigpio1</code> and <code>libpigpio-dev</code> for GPIO.</p>
+<p>The Pi-specific packages are a little trickier as they are not directly available from the Debian repositories. If you try to install one directly, you&rsquo;ll see an error like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>debian@debian:~$ sudo apt install libpigpio1
+</span></span><span style="display:flex;"><span>Reading package lists... Done
+</span></span><span style="display:flex;"><span>Building dependency tree... Done
+</span></span><span style="display:flex;"><span>Reading state information... Done
+</span></span><span style="display:flex;"><span>E: Unable to locate package libpigpio1
+</span></span></code></pre></div><p>Instead, these will have to be downloaded manually from the relevant Pi repository and installed manually<sup id="fnref:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup> using <code>dpkg</code>. Manually copying packages forces you to think about the dependency tree, which is very important across distributions. If you&rsquo;re not careful, you could end up breaking your VM by installing an incompatible <code>glibc</code> or similar.</p>
+<p>If you know what you&rsquo;re doing, you might be able to get away with using <code>add-apt-repository</code> on the VM with the Pi repository at <a href="http://archive.raspberrypi.org/debian">http://archive.raspberrypi.org/debian</a>.</p>
+<h4 id="obtain-the-url">Obtain the URL</h4>
+<p>On the Pi, run <code>apt-cache show $PACKAGE_NAME</code> and look for the line that begins with <code>Filename</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>aarmea@raspberrypi:~ $ apt-cache show libcamera-dev
+</span></span><span style="display:flex;"><span>Package: libcamera-dev
+</span></span><span style="display:flex;"><span>Source: libcamera
+</span></span><span style="display:flex;"><span>Version: 0~git20230720+bde9b04f-1
+</span></span><span style="display:flex;"><span>Architecture: arm64
+</span></span><span style="display:flex;"><span>Maintainer: Debian Multimedia Maintainers &lt;debian-multimedia@lists.debian.org&gt;
+</span></span><span style="display:flex;"><span>Installed-Size: 138
+</span></span><span style="display:flex;"><span>Depends: libcamera0 (= 0~git20230720+bde9b04f-1)
+</span></span><span style="display:flex;"><span>Multi-Arch: same
+</span></span><span style="display:flex;"><span>Homepage: https://libcamera.org/
+</span></span><span style="display:flex;"><span>Priority: optional
+</span></span><span style="display:flex;"><span>Section: libdevel
+</span></span><span style="display:flex;"><span>Filename: pool/main/libc/libcamera/libcamera-dev_0~git20230720+bde9b04f-1_arm64.deb
+</span></span><span style="display:flex;"><span>Size: 24388
+</span></span><span style="display:flex;"><span>SHA256: 50f4043be060f0dea24e4aa70ea8e6a0ce3e65cd4bd074ed296c33d0304db983
+</span></span><span style="display:flex;"><span>SHA1: 7939d7515b72741448251f0d6dcdb18c51300dfe
+</span></span><span style="display:flex;"><span>MD5sum: 87016da23324afd025c12a0d7b89a9eb
+</span></span><span style="display:flex;"><span>Description: complex camera support library (development files)
+</span></span><span style="display:flex;"><span> libcamera is a complex camera support library which handles low-level
+</span></span><span style="display:flex;"><span> control of the camera devices, providing a unified higher-level
+</span></span><span style="display:flex;"><span> programming interface to the applications.
+</span></span><span style="display:flex;"><span> .
+</span></span><span style="display:flex;"><span> This package provides the necessary files needed for development
+</span></span><span style="display:flex;"><span>Description-md5: a817fddde055009800fbb7c2566de922
+</span></span></code></pre></div><p>Append this line to the Pi repository root and you&rsquo;ll get a URL like the following:</p>
+<p><a href="http://archive.raspberrypi.org/debian/pool/main/libc/libcamera/libcamera-dev_0~git20230720+bde9b04f-1_arm64.deb">http://archive.raspberrypi.org/debian/pool/main/libc/libcamera/libcamera-dev_0~git20230720+bde9b04f-1_arm64.deb</a></p>
+<h4 id="download-and-install-the-package">Download and install the package</h4>
+<p>Back on the VM, download the package using <code>wget</code> with this URL, and install it using <code>dpkg</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>debian@debian:~/Downloads $ wget http://archive.raspberrypi.org/debian/pool/main/libc/libcamera/libcamera-dev_0~git20230720+bde9b04f-1_arm64.deb
+</span></span><span style="display:flex;"><span>--2024-03-02 09:17:08--  http://archive.raspberrypi.org/debian/pool/main/libc/libcamera/libcamera-dev_0~git20230720+bde9b04f-1_arm64.deb
+</span></span><span style="display:flex;"><span>...
+</span></span><span style="display:flex;"><span>2024-03-02 09:17:08 (213 KB/s) - ‘libcamera-dev_0~git20230720+bde9b04f-1_arm64.deb’ saved [24388/24388]
+</span></span><span style="display:flex;"><span>debian@debian:~/Downloads$ sudo dpkg -i libcamera-dev_0~git20230720+bde9b04f-1_arm64.deb 
+</span></span><span style="display:flex;"><span>Selecting previously unselected package libcamera-dev:arm64.
+</span></span><span style="display:flex;"><span>(Reading database ... 105377 files and directories currently installed.)
+</span></span><span style="display:flex;"><span>Preparing to unpack libcamera-dev_0~git20230720+bde9b04f-1_arm64.deb ...
+</span></span><span style="display:flex;"><span>Unpacking libcamera-dev:arm64 (0~git20230720+bde9b04f-1) ...
+</span></span><span style="display:flex;"><span>dpkg: dependency problems prevent configuration of libcamera-dev:arm64:
+</span></span><span style="display:flex;"><span> libcamera-dev:arm64 depends on libcamera0 (= 0~git20230720+bde9b04f-1); however:
+</span></span><span style="display:flex;"><span>  Package libcamera0 is not installed.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>dpkg: error processing package libcamera-dev:arm64 (--install):
+</span></span><span style="display:flex;"><span> dependency problems - leaving unconfigured
+</span></span><span style="display:flex;"><span>Errors were encountered while processing:
+</span></span><span style="display:flex;"><span> libcamera-dev:arm64
+</span></span></code></pre></div><p>As you run, make note of <code>dpkg</code> errors of the form &ldquo;Package &hellip; is not installed&rdquo;. If that package is not in your list of packages to install and you don&rsquo;t suspect it will cause issues, add it to your list and keep going.</p>
+<h4 id="validate">Validate</h4>
+<p>Once you believe you have installed all of the Pi-specific packages for your application, ensure  that APT is in a consistent state by running <code>sudo apt install -f</code>. If it only attempts to install packages from the Debian repository, allow it and you are good to go.</p>
+<p>Be careful: if it instead tries to <em>remove</em> packages&hellip;</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>debian@debian:~/Downloads$ sudo apt install -f
+</span></span><span style="display:flex;"><span>Reading package lists... Done
+</span></span><span style="display:flex;"><span>Building dependency tree... Done
+</span></span><span style="display:flex;"><span>Reading state information... Done
+</span></span><span style="display:flex;"><span>Correcting dependencies... Done
+</span></span><span style="display:flex;"><span>The following packages will be REMOVED:
+</span></span><span style="display:flex;"><span>  libcamera-dev
+</span></span><span style="display:flex;"><span>0 upgraded, 0 newly installed, 1 to remove and 0 not upgraded.
+</span></span><span style="display:flex;"><span>1 not fully installed or removed.
+</span></span><span style="display:flex;"><span>After this operation, 141 kB disk space will be freed.
+</span></span><span style="display:flex;"><span>Do you want to continue? [Y/n] n
+</span></span><span style="display:flex;"><span>Abort.
+</span></span></code></pre></div><p>&hellip; you are likely missing a package from the Pi repository, and proceeding will undo some of your work. Double-check that all of the packages and their dependencies are installed before re-running. Tools like <code>aptitude</code>, run on both the Pi and VM, may make it easier to identify the missing packages.</p>
+<p>For what it&rsquo;s worth, the full list of packages that <code>tirf-hal</code> requires from the Pi repository is:</p>
+<ul>
+<li><code>libcamera-dev</code></li>
+<li><code>libcamera0</code></li>
+<li><code>libpigpio1</code></li>
+<li><code>libpigpio-dev</code></li>
+<li><code>raspberrypi-kernel</code> &ndash; note that simply installing the kernel does not configure GRUB to boot from it by default. I haven&rsquo;t tested booting the Pi kernel in the VM and also don&rsquo;t recommend it.</li>
+</ul>
+<h2 id="compiling">Compiling</h2>
+<p>I patterned <code>tirf-hal</code> around <code>rpicam-apps</code> so I could directly reference its headers in my code. As a result, it also uses <code>meson</code> as its build system and all of the normal commands work after cloning the repository:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>debian@debian:~/Code $ git clone git@github.com:454bio/tirf-hal.git
+</span></span><span style="display:flex;"><span>Cloning into &#39;tirf-hal&#39;...
+</span></span><span style="display:flex;"><span>...
+</span></span><span style="display:flex;"><span>debian@debian:~/Code $ cd tirf-hal/
+</span></span><span style="display:flex;"><span>debian@debian:~/Code/tirf-hal $ git submodule update --init --recursive
+</span></span><span style="display:flex;"><span>...
+</span></span><span style="display:flex;"><span>Submodule path &#39;subprojects/rpicam-apps&#39;: checked out &#39;7e4d3d71867f60f5398687180972798baad85f1b&#39;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>debian@debian:~/Code/tirf-hal $ meson setup builddir
+</span></span><span style="display:flex;"><span>The Meson build system
+</span></span><span style="display:flex;"><span>Version: 1.3.2
+</span></span><span style="display:flex;"><span>Source dir: /home/debian/Code/tirf-hal
+</span></span><span style="display:flex;"><span>Build dir: /home/debian/Code/tirf-hal/builddir
+</span></span><span style="display:flex;"><span>...
+</span></span><span style="display:flex;"><span>Build targets in project: 14
+</span></span><span style="display:flex;"><span>                    
+</span></span><span style="display:flex;"><span>libcamera-apps 1.2.1 
+</span></span><span style="display:flex;"><span>                    
+</span></span><span style="display:flex;"><span>  libcamera                    
+</span></span><span style="display:flex;"><span>    location             : /usr/lib/aarch64-linux-gnu
+</span></span><span style="display:flex;"><span>    version              : 0.0.5
+</span></span><span style="display:flex;"><span>                    
+</span></span><span style="display:flex;"><span>  Build configuration              
+</span></span><span style="display:flex;"><span>    libav encoder        : YES
+</span></span><span style="display:flex;"><span>    drm preview          : YES
+</span></span><span style="display:flex;"><span>    egl preview          : YES
+</span></span><span style="display:flex;"><span>    qt preview           : YES
+</span></span><span style="display:flex;"><span>    OpenCV postprocessing: NO
+</span></span><span style="display:flex;"><span>    TFLite postprocessing: NO
+</span></span><span style="display:flex;"><span>                    
+</span></span><span style="display:flex;"><span>454-hal 7            
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  Subprojects
+</span></span><span style="display:flex;"><span>    rpicam-apps: YES
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Found ninja-1.10.1 at /usr/bin/ninja
+</span></span><span style="display:flex;"><span>debian@debian:~/Code/tirf-hal $ cd builddir
+</span></span><span style="display:flex;"><span>debian@debian:~/Code/tirf-hal/builddir $ meson compile
+</span></span><span style="display:flex;"><span>[70/70] Linking target apps/capture-service
+</span></span></code></pre></div><h2 id="deploying-to-the-pi">Deploying to the Pi</h2>
+<p>The final step is to deploy the compiled binaries to the Pi. I like to use <code>rsync</code> for this so I can easily and efficiently copy everything to the Pi over the network:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>debian@debian:~/Code/tirf-hal/builddir$ rsync -avzdP ./ root@$YOUR_PI_HOSTNAME:/454/hal/
+</span></span><span style="display:flex;"><span>...
+</span></span></code></pre></div><p>Then you can run your code:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>aarmea@raspberrypi:/454/hal/ $ ./apps/capture-service
+</span></span><span style="display:flex;"><span>Usage:
+</span></span><span style="display:flex;"><span>./apps/capture-service ...
+</span></span></code></pre></div><div class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1">
+<p>I know a clean build is a little contrived here, but it really adds up. This is the difference between an incremental build taking a few seconds versus a minute or more.&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2">
+<p>If your Pi is running a 32-bit operating system, I highly recommend upgrading to 64-bit instead. Support for 32-bit builds is outside of the scope of this article as it will require either using an emulated VM (much slower) or installing a proper cross-compilation environment inside a 64-bit VM (more complicated).&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:3">
+<p>&ldquo;Force Multicore&rdquo; doesn&rsquo;t make a difference in this scenario because UTM is using Apple&rsquo;s hypervisor for the processor rather than emulating via QEMU.&#160;<a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:4">
+<p>Normally, <a href="https://superuser.com/questions/337845/is-it-safe-to-install-ubuntu-packages-on-debian">installing packages compiled for a different Linux distribution is a Bad Idea™</a>. In this case, Raspbian and Debian are both very closely related and stable (i.e. slow to update but also slow to break things) distributions.&#160;<a href="#fnref:4" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</div>
+        </div>
+
+        
+        
+        <div class="article-toc" >
+            <h3>Contents</h3>
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#tldr">tl;dr</a></li>
+    <li><a href="#initial-setup">Initial setup</a>
+      <ul>
+        <li><a href="#better-integration-via-remote-access">Better integration via &ldquo;remote&rdquo; access</a></li>
+      </ul>
+    </li>
+    <li><a href="#installing-application-specific-packages">Installing application-specific packages</a>
+      <ul>
+        <li><a href="#installing-pi-only-packages-in-the-vm">Installing Pi-only packages in the VM</a></li>
+      </ul>
+    </li>
+    <li><a href="#compiling">Compiling</a></li>
+    <li><a href="#deploying-to-the-pi">Deploying to the Pi</a></li>
+  </ul>
+</nav>
+        </div>
+        
+        
+
+        
+
+
+        
+    </div>
+    
+</article>
+
+        
+    </section>
+    <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            &copy; 2024 Albert Armea
+            <br />
+            Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> with theme <a href="https://github.com/carsonip/hugo-theme-minos" target="_blank">Minos</a>
+        </div>
+    </div>
+    
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/tomorrow-night.min.css" integrity="sha256-2wL88NKUqvJi/ExflDzkzUumjUM73mcK2gBvBBeLvTk=" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js" integrity="sha256-KbfTjB0WZ8vvXngdpJGY3Yp3xKk+tttbqClO11anCIU=" crossorigin="anonymous"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    
+    <script>
+        document.getElementById('main-nav-toggle').addEventListener('click', function () {
+            var header = document.getElementById('header');
+            if (header.classList.contains('mobile-on')) {
+                header.classList.remove('mobile-on');
+            } else {
+                header.classList.add('mobile-on');
+            }
+        });
+
+        
+        
+        (function() {
+            var tolerance = 40; 
+
+            function playPauseVideos() {
+                var elementsToAutoplay = document.getElementsByClassName('playpause-with-visibility');
+                var scrollTop = window.pageYOffset + tolerance;
+                var scrollBottom = window.pageYOffset + window.innerHeight - tolerance;
+
+                for (var i = 0; i < elementsToAutoplay.length; ++i) {
+                    if (elementsToAutoplay[i].tagName !== 'VIDEO')
+                        continue;
+
+                    var video = elementsToAutoplay[i];
+
+                    
+                    if (video.loop) {
+                        video.controls = false;
+                        video.muted = true;
+                    }
+
+                    video.autoplay = false;
+
+                    var videoTop = video.offsetTop;
+                    var videoBottom = video.offsetTop + video.offsetHeight;
+                    if (scrollTop < videoBottom && scrollBottom > videoTop) {
+                        video.play();
+                    } else {
+                        video.pause();
+                    }
+                }
+            }
+
+            window.addEventListener('load', playPauseVideos);
+            window.addEventListener('scroll', playPauseVideos);
+            window.addEventListener('resize', playPauseVideos);
+        })();
+    </script>
+</footer>
+
+</div>
+</body>
+</html>
