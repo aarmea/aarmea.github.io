@@ -4,7 +4,7 @@
     <title>Pages on Albert Armea</title>
     <link>https://albertarmea.com/page/</link>
     <description>Recent content in Pages on Albert Armea</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <generator>Hugo</generator>
     <language>en-us</language>
     <atom:link href="https://albertarmea.com/page/index.xml" rel="self" type="application/rss+xml" />
     <item>
@@ -12,7 +12,7 @@
       <link>https://albertarmea.com/page/about/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://albertarmea.com/page/about/</guid>
-      <description>I make things &amp;ndash; usually software, but sometimes also hardware, videos, and music. On this site, I document the process of making these things and interesting (and occasionally unrelated) adventures that happen along the way.&#xA;You can send me an email or find me on:&#xA;GitHub Thingiverse YouTube Reddit Keybase LinkedIn My resume can be found here.&#xA;Site This site is generated with Hugo using a modified version of the Minos theme and hosted by GitHub Pages.</description>
+      <description>&lt;p&gt;I make things &amp;ndash; usually software, but sometimes also hardware, videos, and&#xA;music. On this site, I document the process of making these things and&#xA;interesting (and occasionally unrelated) adventures that happen along the way.&lt;/p&gt;&#xA;&lt;p&gt;You can &lt;a href=&#34;mailto:website@albertarmea.com&#34;&gt;send me an email&lt;/a&gt; or find me on:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;a href=&#34;https://github.com/aarmea/&#34;&gt;GitHub&lt;/a&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;a href=&#34;https://www.printables.com/@aarmea_2679826&#34;&gt;Prusa Printables&lt;/a&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;a href=&#34;https://www.thingiverse.com/aarmea/designs&#34;&gt;Thingiverse&lt;/a&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;a href=&#34;https://www.youtube.com/channel/UCnhhM5-D-hMGzNH_zk8vVwg&#34;&gt;YouTube&lt;/a&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;a href=&#34;https://www.linkedin.com/in/aarmea/&#34;&gt;LinkedIn&lt;/a&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;My resume can be found &lt;a href=&#34;https://albertarmea.com/docs/resume.pdf&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;&#xA;&lt;h2 id=&#34;site&#34;&gt;Site&lt;/h2&gt;&#xA;&lt;p&gt;This site is generated with &lt;a href=&#34;https://gohugo.io&#34;&gt;Hugo&lt;/a&gt; using &lt;a href=&#34;https://github.com/aarmea/hugo-theme-minos&#34;&gt;a modified version&#xA;of the Minos theme&lt;/a&gt; and hosted by&#xA;&lt;a href=&#34;https://pages.github.com/&#34;&gt;GitHub Pages&lt;/a&gt;. The Markdown source and site&#xA;configuration can be found &lt;a href=&#34;https://github.com/aarmea/albertarmea.com-v2&#34;&gt;on&#xA;GitHub&lt;/a&gt;.&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>

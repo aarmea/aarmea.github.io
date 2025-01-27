@@ -4,7 +4,7 @@
     <title>Albert Armea</title>
     <link>https://albertarmea.com/</link>
     <description>Recent content on Albert Armea</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <generator>Hugo</generator>
     <language>en-us</language>
     <lastBuildDate>Sat, 02 Mar 2024 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://albertarmea.com/index.xml" rel="self" type="application/rss+xml" />
@@ -41,7 +41,7 @@
       <link>https://albertarmea.com/post/alexa-tree/</link>
       <pubDate>Wed, 17 Jan 2018 00:02:13 +0000</pubDate>
       <guid>https://albertarmea.com/post/alexa-tree/</guid>
-      <description>&lt;div style=&#34;position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;&#34;&gt;&#xA;  &lt;iframe src=&#34;https://www.youtube.com/embed/Yi8ShLDlquk&#34; style=&#34;position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;&#34; allowfullscreen title=&#34;YouTube Video&#34;&gt;&lt;/iframe&gt;&#xA;&lt;/div&gt;&#xA;&#xA;&lt;p&gt;I was looking for a white elephant gift, and the silliness of this animatronic&#xA;Christmas tree was too hard to pass up. The humor wore off after the third time&#xA;I heard it sing, so I decided to make it useful by adding Alexa.&lt;/p&gt;</description>
+      <description>&lt;div style=&#34;position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;&#34;&gt;&#xA;      &lt;iframe allow=&#34;accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share&#34; allowfullscreen=&#34;allowfullscreen&#34; loading=&#34;eager&#34; referrerpolicy=&#34;strict-origin-when-cross-origin&#34; src=&#34;https://www.youtube.com/embed/Yi8ShLDlquk?autoplay=0&amp;amp;controls=1&amp;amp;end=0&amp;amp;loop=0&amp;amp;mute=0&amp;amp;start=0&#34; style=&#34;position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;&#34; title=&#34;YouTube video&#34;&gt;&lt;/iframe&gt;&#xA;    &lt;/div&gt;&#xA;&#xA;&lt;p&gt;I was looking for a white elephant gift, and the silliness of this animatronic&#xA;Christmas tree was too hard to pass up. The humor wore off after the third time&#xA;I heard it sing, so I decided to make it useful by adding Alexa.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Calculating a depth map from a stereo camera with OpenCV</title>
@@ -69,7 +69,7 @@
       <link>https://albertarmea.com/page/about/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://albertarmea.com/page/about/</guid>
-      <description>I make things &amp;ndash; usually software, but sometimes also hardware, videos, and music. On this site, I document the process of making these things and interesting (and occasionally unrelated) adventures that happen along the way.&#xA;You can send me an email or find me on:&#xA;GitHub Thingiverse YouTube Reddit Keybase LinkedIn My resume can be found here.&#xA;Site This site is generated with Hugo using a modified version of the Minos theme and hosted by GitHub Pages.</description>
+      <description>&lt;p&gt;I make things &amp;ndash; usually software, but sometimes also hardware, videos, and&#xA;music. On this site, I document the process of making these things and&#xA;interesting (and occasionally unrelated) adventures that happen along the way.&lt;/p&gt;&#xA;&lt;p&gt;You can &lt;a href=&#34;mailto:website@albertarmea.com&#34;&gt;send me an email&lt;/a&gt; or find me on:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;a href=&#34;https://github.com/aarmea/&#34;&gt;GitHub&lt;/a&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;a href=&#34;https://www.printables.com/@aarmea_2679826&#34;&gt;Prusa Printables&lt;/a&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;a href=&#34;https://www.thingiverse.com/aarmea/designs&#34;&gt;Thingiverse&lt;/a&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;a href=&#34;https://www.youtube.com/channel/UCnhhM5-D-hMGzNH_zk8vVwg&#34;&gt;YouTube&lt;/a&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;a href=&#34;https://www.linkedin.com/in/aarmea/&#34;&gt;LinkedIn&lt;/a&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;My resume can be found &lt;a href=&#34;https://albertarmea.com/docs/resume.pdf&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;&#xA;&lt;h2 id=&#34;site&#34;&gt;Site&lt;/h2&gt;&#xA;&lt;p&gt;This site is generated with &lt;a href=&#34;https://gohugo.io&#34;&gt;Hugo&lt;/a&gt; using &lt;a href=&#34;https://github.com/aarmea/hugo-theme-minos&#34;&gt;a modified version&#xA;of the Minos theme&lt;/a&gt; and hosted by&#xA;&lt;a href=&#34;https://pages.github.com/&#34;&gt;GitHub Pages&lt;/a&gt;. The Markdown source and site&#xA;configuration can be found &lt;a href=&#34;https://github.com/aarmea/albertarmea.com-v2&#34;&gt;on&#xA;GitHub&lt;/a&gt;.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Animatronic tree teardown</title>

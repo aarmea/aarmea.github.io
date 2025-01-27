@@ -4,7 +4,7 @@
     <title>Posts on Albert Armea</title>
     <link>https://albertarmea.com/post/</link>
     <description>Recent content in Posts on Albert Armea</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <generator>Hugo</generator>
     <language>en-us</language>
     <lastBuildDate>Sat, 02 Mar 2024 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://albertarmea.com/post/index.xml" rel="self" type="application/rss+xml" />
@@ -41,7 +41,7 @@
       <link>https://albertarmea.com/post/alexa-tree/</link>
       <pubDate>Wed, 17 Jan 2018 00:02:13 +0000</pubDate>
       <guid>https://albertarmea.com/post/alexa-tree/</guid>
-      <description>&lt;div style=&#34;position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;&#34;&gt;&#xA;  &lt;iframe src=&#34;https://www.youtube.com/embed/Yi8ShLDlquk&#34; style=&#34;position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;&#34; allowfullscreen title=&#34;YouTube Video&#34;&gt;&lt;/iframe&gt;&#xA;&lt;/div&gt;&#xA;&#xA;&lt;p&gt;I was looking for a white elephant gift, and the silliness of this animatronic&#xA;Christmas tree was too hard to pass up. The humor wore off after the third time&#xA;I heard it sing, so I decided to make it useful by adding Alexa.&lt;/p&gt;</description>
+      <description>&lt;div style=&#34;position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;&#34;&gt;&#xA;      &lt;iframe allow=&#34;accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share&#34; allowfullscreen=&#34;allowfullscreen&#34; loading=&#34;eager&#34; referrerpolicy=&#34;strict-origin-when-cross-origin&#34; src=&#34;https://www.youtube.com/embed/Yi8ShLDlquk?autoplay=0&amp;amp;controls=1&amp;amp;end=0&amp;amp;loop=0&amp;amp;mute=0&amp;amp;start=0&#34; style=&#34;position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;&#34; title=&#34;YouTube video&#34;&gt;&lt;/iframe&gt;&#xA;    &lt;/div&gt;&#xA;&#xA;&lt;p&gt;I was looking for a white elephant gift, and the silliness of this animatronic&#xA;Christmas tree was too hard to pass up. The humor wore off after the third time&#xA;I heard it sing, so I decided to make it useful by adding Alexa.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Calculating a depth map from a stereo camera with OpenCV</title>
